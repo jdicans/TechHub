@@ -1,1 +1,163 @@
-<p>blog works!</p>
+<div class="blog-container">
+  <header class="blog-header">
+    <h1>Blog</h1>
+    <div class="search-container">
+      <div class="search-box">
+        <lucide-icon name="search"></lucide-icon>
+        <input type="text" placeholder="Buscar artículos..." class="search-input">
+      </div>
+      <button class="btn-crear-post" (click)="toggleFormulario()">
+        <lucide-icon name="plus"></lucide-icon>
+        Crear Post
+      </button>
+    </div>
+  </header>
+
+  @if (mostrarFormulario) {
+    <div class="formulario-post">
+      <h2>Crear Nuevo Post</h2>
+      <form (submit)="$event.preventDefault(); crearPost()">
+        <div class="form-group">
+          <input type="text" [(ngModel)]="nuevoPost.titulo" name="titulo" placeholder="Título" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <input type="text" [(ngModel)]="nuevoPost.resumen" name="resumen" placeholder="Resumen" class="form-input">
+        </div>
+        <div class="form-group">
+          <textarea [(ngModel)]="nuevoPost.contenido" name="contenido" placeholder="Contenido" class="form-textarea" rows="6" required></textarea>
+        </div>
+        <div class="form-group">
+          <input type="text" [(ngModel)]="nuevoPost.categoria" name="categoria" placeholder="Categoría" class="form-input">
+        </div>
+        <div class="form-group">
+          <input type="text" [(ngModel)]="nuevoPost.tags" name="tags" placeholder="Tags (separados por comas)" class="form-input">
+        </div>
+        <div class="form-group">
+          <input type="text" [(ngModel)]="nuevoPost.imagen" name="imagen" placeholder="URL de imagen" class="form-input">
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn-submit">Publicar</button>
+          <button type="button" class="btn-cancel" (click)="toggleFormulario()">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  }
+
+  <div class="posts-grid">
+    @for (post of posts$ | async; track post.id) {
+      <article class="post-card" (click)="verPost(post)">
+        <div class="post-image">
+          <img [src]="post.imagen" [alt]="post.titulo">
+          <span class="category-tag">{{ post.categoria }}</span>
+        </div>
+        <div class="post-content">
+          <h2 class="post-title">{{ post.titulo }}</h2>
+          <p class="post-excerpt">{{ post.resumen }}</p>
+          <div class="post-meta">
+            <div class="author-info">
+              <span class="author-avatar">{{ post.autor.avatar }}</span>
+              <span class="author-name">{{ post.autor.nombre }}</span>
+            </div>
+            <span class="post-date">{{ formatearFecha(post.fecha) }}</span>
+          </div>
+          <div class="post-stats">
+            <span class="stat">
+              <lucide-icon name="heart"></lucide-icon>
+              {{ post.likes }}
+            </span>
+            <span class="stat">
+              <lucide-icon name="message-circle"></lucide-icon>
+              {{ post.comentariosList.length }}
+            </span>
+            <span class="stat">
+              <lucide-icon name="eye"></lucide-icon>
+              {{ post.vistas }}
+            </span>
+          </div>
+        </div>
+      </article>
+    }
+  </div>
+
+  @if (postSeleccionado) {
+    <div class="modal-backdrop" (click)="cerrarPost()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <button class="close-button" (click)="cerrarPost()">
+          <lucide-icon name="x"></lucide-icon>
+        </button>
+        <article class="post-full">
+          <div class="post-full-header">
+            <span class="category-tag">{{ postSeleccionado.categoria }}</span>
+            <h1>{{ postSeleccionado.titulo }}</h1>
+            <div class="post-full-meta">
+              <div class="author-info">
+                <span class="author-avatar-large">{{ postSeleccionado.autor.avatar }}</span>
+                <div class="author-details">
+                  <span class="author-name">{{ postSeleccionado.autor.nombre }}</span>
+                  <span class="author-bio">{{ postSeleccionado.autor.bio }}</span>
+                </div>
+              </div>
+              <span class="post-date">{{ formatearFecha(postSeleccionado.fecha) }}</span>
+            </div>
+          </div>
+          <img [src]="postSeleccionado.imagen" [alt]="postSeleccionado.titulo" class="post-full-image">
+          <div class="post-full-content">
+            <p>{{ postSeleccionado.contenido }}</p>
+          </div>
+          <div class="post-full-footer">
+            <div class="post-stats">
+              <button class="stat stat-button" (click)="darLike(postSeleccionado.id)">
+                <lucide-icon name="heart"></lucide-icon>
+                {{ postSeleccionado.likes }}
+              </button>
+              <span class="stat">
+                <lucide-icon name="message-circle"></lucide-icon>
+                {{ postSeleccionado.comentariosList.length }}
+              </span>
+              <span class="stat">
+                <lucide-icon name="eye"></lucide-icon>
+                {{ postSeleccionado.vistas }}
+              </span>
+            </div>
+            <div class="post-tags">
+              @for (tag of postSeleccionado.tags; track tag) {
+                <span class="tag">{{ tag }}</span>
+              }
+            </div>
+          </div>
+
+          <div class="comentarios-section">
+            <h3>Comentarios ({{ postSeleccionado.comentariosList.length }})</h3>
+
+            @if (postSeleccionado.comentariosList.length > 0) {
+              <div class="comentarios-lista">
+                @for (comentario of postSeleccionado.comentariosList; track comentario.id) {
+                  <div class="comentario">
+                    <div class="comentario-header">
+                      <span class="comentario-avatar">{{ comentario.autor.avatar }}</span>
+                      <div class="comentario-info">
+                        <span class="comentario-autor">{{ comentario.autor.nombre }}</span>
+                        <span class="comentario-fecha">{{ formatearFecha(comentario.fecha) }}</span>
+                      </div>
+                    </div>
+                    <p class="comentario-contenido">{{ comentario.contenido }}</p>
+                  </div>
+                }
+              </div>
+            } @else {
+              <p class="sin-comentarios">Sé el primero en comentar</p>
+            }
+
+            <div class="comentario-form">
+              <textarea [(ngModel)]="nuevoComentario" placeholder="Escribe un comentario..." class="comentario-input" rows="3"></textarea>
+              <button class="btn-comentar" (click)="agregarComentario(postSeleccionado.id, nuevoComentario)">
+                <lucide-icon name="send"></lucide-icon>
+                Comentar
+              </button>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  }
+</div>

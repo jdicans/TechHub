@@ -1,0 +1,36 @@
+<div class="skeleton-container">
+  @for (item of items; track $index) {
+    @if (type === 'card') {
+      <div class="skeleton skeleton-card">
+        <div class="skeleton skeleton-image"></div>
+        <div class="skeleton-content">
+          <div class="skeleton skeleton-title"></div>
+          <div class="skeleton skeleton-text"></div>
+          <div class="skeleton skeleton-text short"></div>
+        </div>
+      </div>
+    }
+    
+    @if (type === 'list') {
+      <div class="skeleton skeleton-list-item">
+        <div class="skeleton skeleton-avatar"></div>
+        <div class="skeleton-list-content">
+          <div class="skeleton skeleton-text"></div>
+          <div class="skeleton skeleton-text short"></div>
+        </div>
+      </div>
+    }
+    
+    @if (type === 'text') {
+      <div class="skeleton skeleton-text" [style.height]="height" [style.width]="width"></div>
+    }
+    
+    @if (type === 'avatar') {
+      <div class="skeleton skeleton-avatar" [style.height]="height" [style.width]="height"></div>
+    }
+    
+    @if (type === 'image') {
+      <div class="skeleton skeleton-image" [style.height]="height" [style.width]="width"></div>
+    }
+  }
+</div>

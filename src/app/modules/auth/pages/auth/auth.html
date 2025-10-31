@@ -1,27 +1,253 @@
-<div class="auth-container">
-  <div class="auth-box">
-    <h2 *ngIf="mostrarLogin">Iniciar Sesión</h2>
-    <h2 *ngIf="!mostrarLogin">Registrarse</h2>
+<div class="auth-wrapper">
+  <!-- Panel lateral decorativo -->
+  <div class="auth-side-panel">
+    <div class="side-content">
+      <div class="logo-section">
+        <div class="logo-icon">
+          <lucide-icon name="zap"></lucide-icon>
+        </div>
+        <h1 class="brand-name">TechHub</h1>
+      </div>
 
-    <form *ngIf="mostrarLogin" (ngSubmit)="iniciarSesion()">
-      <input type="email" placeholder="Correo electrónico" required />
-      <input type="password" placeholder="Contraseña" required />
-      <button type="submit">Ingresar</button>
-      <p>
-        ¿No tienes cuenta?
-        <a (click)="cambiarFormulario()">Regístrate aquí</a>
-      </p>
-    </form>
+      <div class="side-info">
+        <h2>Únete a nuestra comunidad tecnológica</h2>
+        <ul class="features-list">
+          <li>
+            <lucide-icon name="check-circle"></lucide-icon>
+            <span>Conecta con profesionales tech</span>
+          </li>
+          <li>
+            <lucide-icon name="check-circle"></lucide-icon>
+            <span>Participa en eventos exclusivos</span>
+          </li>
+          <li>
+            <lucide-icon name="check-circle"></lucide-icon>
+            <span>Comparte tus proyectos</span>
+          </li>
+          <li>
+            <lucide-icon name="check-circle"></lucide-icon>
+            <span>Aprende de la comunidad</span>
+          </li>
+        </ul>
+      </div>
 
-    <form *ngIf="!mostrarLogin" (ngSubmit)="registrar()">
-      <input type="text" placeholder="Nombre completo" required />
-      <input type="email" placeholder="Correo electrónico" required />
-      <input type="password" placeholder="Contraseña" required />
-      <button type="submit">Crear cuenta</button>
-      <p>
-        ¿Ya tienes cuenta?
-        <a (click)="cambiarFormulario()">Inicia sesión</a>
-      </p>
-    </form>
+      <div class="side-illustration">
+        <div class="floating-card card-1"></div>
+        <div class="floating-card card-2"></div>
+        <div class="floating-card card-3"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Panel de formulario -->
+  <div class="auth-form-panel">
+    <div class="form-container">
+      <!-- Header del formulario -->
+      <div class="form-header">
+        <div class="logo-mobile">
+          <lucide-icon name="zap"></lucide-icon>
+          <span>TechHub</span>
+        </div>
+
+        @if (mostrarLogin) {
+          <h2 class="form-title">Iniciar Sesión</h2>
+          <p class="form-subtitle">Bienvenido de nuevo a TechHub</p>
+        } @else {
+          <h2 class="form-title">Crear Cuenta</h2>
+          <p class="form-subtitle">Comienza tu viaje en TechHub</p>
+        }
+      </div>
+
+      <!-- Formulario de Login -->
+      @if (mostrarLogin) {
+        <form [formGroup]="loginForm" (ngSubmit)="iniciarSesion()" class="auth-form">
+          <div class="form-group">
+            <label for="login-email">Correo electrónico</label>
+            <div class="input-wrapper" [class.error]="hasError('login', 'email')">
+              <lucide-icon name="mail"></lucide-icon>
+              <input
+                id="login-email"
+                type="email"
+                formControlName="email"
+                placeholder="tu@email.com"
+                [class.invalid]="hasError('login', 'email')"
+              />
+            </div>
+            @if (hasError('login', 'email')) {
+              <span class="error-message">{{ getErrorMessage('login', 'email') }}</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="login-password">Contraseña</label>
+            <div class="input-wrapper" [class.error]="hasError('login', 'password')">
+              <lucide-icon name="lock"></lucide-icon>
+              <input
+                id="login-password"
+                [type]="mostrarPassword ? 'text' : 'password'"
+                formControlName="password"
+                placeholder="••••••••"
+                [class.invalid]="hasError('login', 'password')"
+              />
+              <button
+                type="button"
+                class="toggle-password"
+                (click)="togglePassword()"
+                tabindex="-1"
+              >
+                <lucide-icon [name]="mostrarPassword ? 'eye-off' : 'eye'"></lucide-icon>
+              </button>
+            </div>
+            @if (hasError('login', 'password')) {
+              <span class="error-message">{{ getErrorMessage('login', 'password') }}</span>
+            }
+          </div>
+
+          <div class="form-options">
+            <label class="checkbox-label">
+              <input type="checkbox" />
+              <span>Recordarme</span>
+            </label>
+            <a href="#" class="forgot-password">¿Olvidaste tu contraseña?</a>
+          </div>
+
+          <button
+            type="submit"
+            class="btn-submit"
+            [disabled]="cargando"
+          >
+            @if (cargando) {
+              <span class="loading-spinner"></span>
+              <span>Iniciando sesión...</span>
+            } @else {
+              <lucide-icon name="log-in"></lucide-icon>
+              <span>Iniciar Sesión</span>
+            }
+          </button>
+
+          <div class="form-footer">
+            <p>¿No tienes cuenta?
+              <a (click)="cambiarFormulario()" class="link-switch">Regístrate gratis</a>
+            </p>
+          </div>
+        </form>
+      }
+
+      <!-- Formulario de Registro -->
+      @if (!mostrarLogin) {
+        <form [formGroup]="registerForm" (ngSubmit)="registrar()" class="auth-form">
+          <div class="form-group">
+            <label for="register-name">Nombre completo</label>
+            <div class="input-wrapper" [class.error]="hasError('register', 'nombre')">
+              <lucide-icon name="user"></lucide-icon>
+              <input
+                id="register-name"
+                type="text"
+                formControlName="nombre"
+                placeholder="Juan Pérez"
+                [class.invalid]="hasError('register', 'nombre')"
+              />
+            </div>
+            @if (hasError('register', 'nombre')) {
+              <span class="error-message">{{ getErrorMessage('register', 'nombre') }}</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="register-email">Correo electrónico</label>
+            <div class="input-wrapper" [class.error]="hasError('register', 'email')">
+              <lucide-icon name="mail"></lucide-icon>
+              <input
+                id="register-email"
+                type="email"
+                formControlName="email"
+                placeholder="tu@email.com"
+                [class.invalid]="hasError('register', 'email')"
+              />
+            </div>
+            @if (hasError('register', 'email')) {
+              <span class="error-message">{{ getErrorMessage('register', 'email') }}</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="register-password">Contraseña</label>
+            <div class="input-wrapper" [class.error]="hasError('register', 'password')">
+              <lucide-icon name="lock"></lucide-icon>
+              <input
+                id="register-password"
+                [type]="mostrarPassword ? 'text' : 'password'"
+                formControlName="password"
+                placeholder="Mínimo 8 caracteres"
+                [class.invalid]="hasError('register', 'password')"
+              />
+              <button
+                type="button"
+                class="toggle-password"
+                (click)="togglePassword()"
+                tabindex="-1"
+              >
+                <lucide-icon [name]="mostrarPassword ? 'eye-off' : 'eye'"></lucide-icon>
+              </button>
+            </div>
+            @if (hasError('register', 'password')) {
+              <span class="error-message">{{ getErrorMessage('register', 'password') }}</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="register-confirm">Confirmar contraseña</label>
+            <div class="input-wrapper" [class.error]="hasError('register', 'confirmPassword')">
+              <lucide-icon name="lock"></lucide-icon>
+              <input
+                id="register-confirm"
+                [type]="mostrarPasswordConfirm ? 'text' : 'password'"
+                formControlName="confirmPassword"
+                placeholder="Repite tu contraseña"
+                [class.invalid]="hasError('register', 'confirmPassword')"
+              />
+              <button
+                type="button"
+                class="toggle-password"
+                (click)="togglePasswordConfirm()"
+                tabindex="-1"
+              >
+                <lucide-icon [name]="mostrarPasswordConfirm ? 'eye-off' : 'eye'"></lucide-icon>
+              </button>
+            </div>
+            @if (hasError('register', 'confirmPassword')) {
+              <span class="error-message">{{ getErrorMessage('register', 'confirmPassword') }}</span>
+            }
+          </div>
+
+          <div class="terms-accept">
+            <label class="checkbox-label">
+              <input type="checkbox" required />
+              <span>Acepto los <a href="#" class="link-inline">términos y condiciones</a></span>
+            </label>
+          </div>
+
+          <button
+            type="submit"
+            class="btn-submit"
+            [disabled]="cargando"
+          >
+            @if (cargando) {
+              <span class="loading-spinner"></span>
+              <span>Creando cuenta...</span>
+            } @else {
+              <lucide-icon name="user-plus"></lucide-icon>
+              <span>Crear Cuenta</span>
+            }
+          </button>
+
+          <div class="form-footer">
+            <p>¿Ya tienes cuenta?
+              <a (click)="cambiarFormulario()" class="link-switch">Inicia sesión</a>
+            </p>
+          </div>
+        </form>
+      }
+    </div>
   </div>
 </div>

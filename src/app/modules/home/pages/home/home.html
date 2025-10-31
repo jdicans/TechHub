@@ -1,15 +1,86 @@
 <div class="layout">
-  <aside class="sidebar">
-    <h2>Menú</h2>
-    <nav>
-      <a routerLink="perfil" routerLinkActive="active">Perfil</a>
-      <a routerLink="eventos" routerLinkActive="active">Eventos</a>
-      <a routerLink="blog" routerLinkActive="active">Blog</a>
-      <a routerLink="comunidad" routerLinkActive="active">Comunidad</a>
+  <!-- Sidebar -->
+  <aside class="sidebar" [class.sidebar-movil-open]="mostrarMenuMovil" [class.sidebar-collapsed]="menuColapsado">
+    <!-- Logo y Header -->
+    <div class="sidebar-header">
+      <div class="logo">
+        <div class="logo-icon">
+          <lucide-icon name="home"></lucide-icon>
+        </div>
+        <h2 class="logo-text">TechHub</h2>
+      </div>
+      <button class="btn-toggle-desktop" (click)="toggleMenuDesktop()" title="Colapsar/Expandir menú">
+        <lucide-icon [name]="menuColapsado ? 'menu' : 'chevron-left'"></lucide-icon>
+      </button>
+      <button class="btn-cerrar-movil" (click)="toggleMenuMovil()" title="Cerrar menú">
+        <lucide-icon name="x"></lucide-icon>
+      </button>
+    </div>
+
+    <!-- Perfil de usuario -->
+    <div class="user-profile">
+      <div class="user-avatar">{{ usuarioActual.avatar }}</div>
+      <div class="user-info">
+        <h3>{{ usuarioActual.nombre }}</h3>
+        <p>Miembro activo</p>
+      </div>
+    </div>
+
+    <!-- Navegación -->
+    <nav class="nav-menu">
+      @for (item of menuItems; track item.route) {
+        <a
+          [routerLink]="item.route"
+          routerLinkActive="active"
+          class="nav-item"
+          (click)="mostrarMenuMovil = false"
+        >
+          <div class="nav-icon">
+            <lucide-icon [name]="item.icon"></lucide-icon>
+          </div>
+          <div class="nav-content">
+            <span class="nav-label">{{ item.label }}</span>
+            <span class="nav-description">{{ item.description }}</span>
+          </div>
+        </a>
+      }
     </nav>
+
+    <!-- Footer del sidebar -->
+    <div class="sidebar-footer">
+      <button class="btn-logout" (click)="cerrarSesion()">
+        <lucide-icon name="log-out"></lucide-icon>
+        <span>Cerrar Sesión</span>
+      </button>
+    </div>
   </aside>
 
-  <main class="content">
-    <router-outlet></router-outlet>
-  </main>
+  <!-- Contenido principal -->
+  <div class="main-wrapper">
+    <!-- Topbar para móvil -->
+    <header class="topbar">
+      <button class="btn-menu-movil" (click)="toggleMenuMovil()" [class.active]="mostrarMenuMovil" title="Abrir/Cerrar menú">
+        <span class="hamburger" [class.active]="mostrarMenuMovil"></span>
+        <span class="hamburger" [class.active]="mostrarMenuMovil"></span>
+        <span class="hamburger" [class.active]="mostrarMenuMovil"></span>
+      </button>
+      <div class="topbar-logo">
+        <lucide-icon name="home"></lucide-icon>
+        <span class="logo-text">TechHub</span>
+      </div>
+      <div class="topbar-user">
+        <span>{{ usuarioActual.avatar }}</span>
+      </div>
+    </header>
+
+    <!-- Contenido -->
+    <main class="content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+
+  <!-- Overlay para móvil -->
+  @if (mostrarMenuMovil) {
+    <div class="overlay" (click)="toggleMenuMovil()"></div>
+  }
 </div>

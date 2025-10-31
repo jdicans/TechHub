@@ -1,0 +1,80 @@
+<div class="comunidad-container">
+  <header class="comunidad-header">
+    <h1>Comunidad TechHub</h1>
+    <div class="search-filter-bar">
+      <div class="search-box">
+        <lucide-icon name="search"></lucide-icon>
+        <input type="text" placeholder="Buscar miembros..." class="search-input">
+      </div>
+      <select class="filter-select">
+        <option value="">Todas las especialidades</option>
+        <option value="desarrollo">Desarrollo</option>
+        <option value="diseno">Diseño</option>
+        <option value="datos">Datos</option>
+        <option value="gestion">Gestión</option>
+      </select>
+    </div>
+  </header>
+
+  <div class="miembros-grid">
+    @for (miembro of miembros$ | async; track miembro.id) {
+      <article class="miembro-card">
+        <div class="card-header">
+          <div class="avatar-section">
+            <span class="avatar">{{ miembro.avatar }}</span>
+          </div>
+          <div class="info-section">
+            <h2 class="nombre">{{ miembro.nombre }}</h2>
+            <p class="rol">{{ miembro.rol }}</p>
+            <p class="especialidad">{{ miembro.especialidad }}</p>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div class="ubicacion">
+            <lucide-icon name="map-pin"></lucide-icon>
+            <span>{{ miembro.ubicacion }}</span>
+          </div>
+
+          <div class="skills-container">
+            @for (skill of getSkillsLimitados(miembro.skills); track skill) {
+              <span class="skill-tag">{{ skill }}</span>
+            }
+            @if (miembro.skills.length > 3) {
+              <span class="skill-tag more">+{{ miembro.skills.length - 3 }}</span>
+            }
+          </div>
+
+          <div class="stats">
+            <div class="stat-item">
+              <span class="stat-value">{{ miembro.conexiones }}</span>
+              <span class="stat-label">Conexiones</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-value">{{ miembro.proyectos }}</span>
+              <span class="stat-label">Proyectos</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-footer">
+          @if (estaConectado(miembro.id)) {
+            <button class="btn-conectar conectado" (click)="conectar(miembro.id)">
+              <lucide-icon name="user-check"></lucide-icon>
+              Conectado
+            </button>
+          } @else {
+            <button class="btn-conectar" (click)="conectar(miembro.id)">
+              <lucide-icon name="user-plus"></lucide-icon>
+              Conectar
+            </button>
+          }
+          <button class="btn-perfil" (click)="verPerfil(miembro)">
+            <lucide-icon name="eye"></lucide-icon>
+            Ver Perfil
+          </button>
+        </div>
+      </article>
+    }
+  </div>
+</div>

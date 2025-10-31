@@ -1,32 +1,479 @@
+/* Layout principal */
 .layout {
   display: flex;
   height: 100vh;
-  background: #f4f4f4;
+  overflow: hidden;
+  background: var(--bg-secondary);
 }
 
+/* Sidebar */
 .sidebar {
-  width: 220px;
-  background-color: #2f3e46;
+  width: 280px;
+  background: var(--gray-900);
   color: white;
-  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-lg);
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 1000;
 }
 
-.sidebar a {
-  display: block;
+/* Sidebar colapsado en desktop */
+.sidebar-collapsed {
+  width: 80px;
+}
+
+.sidebar-collapsed .logo-text,
+.sidebar-collapsed .nav-content,
+.sidebar-collapsed .user-info,
+.sidebar-collapsed .btn-logout span:not(lucide-icon) {
+  opacity: 0;
+  display: none;
+}
+
+.sidebar-collapsed .nav-item {
+  justify-content: center;
+  padding: var(--spacing-md) var(--spacing-sm);
+}
+
+.sidebar-collapsed .nav-icon {
+  width: 32px;
+  height: 32px;
+}
+
+.sidebar-collapsed .user-profile {
+  justify-content: center;
+  padding: var(--spacing-md) var(--spacing-sm);
+}
+
+/* Header del sidebar */
+.sidebar-header {
+  padding: var(--spacing-lg);
+  border-bottom: 1px solid var(--gray-800);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.logo-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary);
+  border-radius: var(--border-radius);
+  transition: transform 0.3s ease;
+}
+
+.logo-icon:hover {
+  transform: scale(1.1);
+}
+
+.logo-icon lucide-icon {
+  width: 24px;
+  height: 24px;
   color: white;
+}
+
+.logo-text {
+  margin: 0;
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  color: white;
+}
+
+/* Botón toggle desktop */
+.btn-toggle-desktop {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gray-800);
+  border: none;
+  color: white;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-toggle-desktop:hover {
+  background: var(--gray-700);
+  transform: scale(1.05);
+}
+
+.btn-toggle-desktop lucide-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.btn-cerrar-movil {
+  display: none;
+  background: var(--gray-800);
+  border: none;
+  color: white;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-cerrar-movil:hover {
+  background: var(--gray-700);
+}
+
+.btn-cerrar-movil lucide-icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* Perfil de usuario */
+.user-profile {
+  padding: var(--spacing-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  background: var(--gray-800);
+  margin: var(--spacing-lg);
+  border-radius: var(--border-radius-lg);
+  transition: all 0.3s ease;
+}
+
+.user-profile:hover {
+  background: var(--gray-700);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.user-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: white;
+  box-shadow: var(--shadow);
+}
+
+.user-info h3 {
+  margin: 0;
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: white;
+}
+
+.user-info p {
+  margin: var(--spacing-xs) 0 0;
+  font-size: var(--font-size-sm);
+  color: var(--gray-400);
+}
+
+/* Navegación */
+.nav-menu {
+  flex: 1;
+  padding: 0 var(--spacing-md);
+  overflow-y: auto;
+}
+
+.nav-menu::-webkit-scrollbar {
+  width: 6px;
+}
+
+.nav-menu::-webkit-scrollbar-thumb {
+  background: var(--gray-700);
+  border-radius: 3px;
+}
+
+.nav-menu::-webkit-scrollbar-thumb:hover {
+  background: var(--gray-600);
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  margin: var(--spacing-sm) 0;
+  border-radius: var(--border-radius);
+  color: var(--gray-300);
   text-decoration: none;
-  margin: 10px 0;
-  padding: 8px;
-  border-radius: 5px;
+  transition: all 0.2s ease;
+  position: relative;
 }
 
-.sidebar a.active,
-.sidebar a:hover {
-  background-color: #354f52;
+.nav-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 3px;
+  background: var(--primary);
+  border-radius: 0 3px 3px 0;
+  transform: scaleY(0);
+  transition: transform 0.2s ease;
 }
 
+.nav-item:hover {
+  background: var(--gray-800);
+  color: white;
+  transform: translateX(4px);
+}
+
+.nav-item.active {
+  background: var(--gray-800);
+  color: white;
+  box-shadow: var(--shadow);
+}
+
+.nav-item.active::before {
+  transform: scaleY(1);
+}
+
+.nav-icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-icon lucide-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.nav-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.nav-label {
+  font-size: var(--font-size-base);
+  font-weight: 500;
+}
+
+.nav-description {
+  font-size: var(--font-size-xs);
+  color: var(--gray-500);
+}
+
+/* Footer del sidebar */
+.sidebar-footer {
+  padding: var(--spacing-lg);
+  border-top: 1px solid var(--gray-800);
+}
+
+.btn-logout {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  background: var(--danger);
+  border: none;
+  color: white;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.btn-logout:hover {
+  background: var(--danger-dark);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-logout lucide-icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* Main wrapper */
+.main-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Topbar */
+.topbar {
+  display: none;
+  background: var(--bg-primary);
+  padding: var(--spacing-md) var(--spacing-lg);
+  box-shadow: var(--shadow);
+  align-items: center;
+  justify-content: space-between;
+  z-index: 999;
+}
+
+.btn-menu-movil {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--spacing-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  position: relative;
+  width: 40px;
+  height: 40px;
+  justify-content: center;
+  align-items: center;
+}
+
+.hamburger {
+  display: block;
+  width: 25px;
+  height: 3px;
+  background: var(--gray-900);
+  border-radius: 2px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+/* Animación del burger menu cuando está activo */
+.btn-menu-movil.active .hamburger:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.btn-menu-movil.active .hamburger:nth-child(2) {
+  opacity: 0;
+  transform: translateX(-20px);
+}
+
+.btn-menu-movil.active .hamburger:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+.topbar-logo {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-weight: 700;
+  color: var(--gray-900);
+}
+
+.topbar-logo lucide-icon {
+  width: 24px;
+  height: 24px;
+  color: var(--primary);
+}
+
+.topbar-user {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: white;
+}
+
+/* Contenido */
 .content {
   flex: 1;
-  padding: 20px;
-  background-color: #fff;
+  overflow-y: auto;
+  background: var(--bg-secondary);
+}
+
+/* Overlay para móvil */
+.overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  backdrop-filter: blur(2px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 280px;
+    transform: translateX(-100%);
+    z-index: 1000;
+  }
+
+  .sidebar-collapsed {
+    width: 280px;
+  }
+
+  .sidebar-movil-open {
+    transform: translateX(0);
+  }
+
+  .btn-toggle-desktop {
+    display: none;
+  }
+
+  .btn-cerrar-movil {
+    display: flex;
+  }
+
+  .topbar {
+    display: flex;
+  }
+
+  .overlay {
+    display: block;
+  }
+
+  .main-wrapper {
+    width: 100%;
+  }
+
+  /* Restaurar estilos colapsados en móvil */
+  .sidebar-collapsed .logo-text,
+  .sidebar-collapsed .nav-content,
+  .sidebar-collapsed .user-info,
+  .sidebar-collapsed .btn-logout span:not(lucide-icon) {
+    opacity: 1;
+    display: block;
+  }
+}
+
+@media (max-width: 480px) {
+  .sidebar {
+    width: 80%;
+    max-width: 280px;
+  }
+
+  .logo-text {
+    font-size: var(--font-size-xl);
+  }
+
+  .nav-label {
+    font-size: var(--font-size-sm);
+  }
 }

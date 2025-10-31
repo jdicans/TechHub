@@ -1,1 +1,214 @@
-<p>eventos works!</p>
+<div class="eventos-container">
+  <div class="header">
+    <div class="header-content">
+      <h1>Eventos TechHub</h1>
+      <p>Descubre y participa en eventos de tecnología</p>
+    </div>
+    <button class="btn btn-primary" (click)="toggleFormulario()">
+      <lucide-icon [name]="mostrarFormulario ? 'x' : 'plus'"></lucide-icon>
+      {{ mostrarFormulario ? 'Cancelar' : 'Crear Evento' }}
+    </button>
+  </div>
+
+  <!-- Formulario de creación de evento -->
+  @if (mostrarFormulario) {
+    <div class="formulario-evento card">
+      <h2>Crear Nuevo Evento</h2>
+      <form (ngSubmit)="crearEvento()">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Título *</label>
+            <input type="text" [(ngModel)]="nuevoEvento.titulo" name="titulo" required />
+          </div>
+          <div class="form-group">
+            <label>Categoría *</label>
+            <select [(ngModel)]="nuevoEvento.categoria" name="categoria" required>
+              @for (categoria of categorias; track categoria) {
+                <option [value]="categoria">{{ categoria }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Descripción *</label>
+          <textarea [(ngModel)]="nuevoEvento.descripcion" name="descripcion" rows="4" required></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Fecha *</label>
+            <input type="date" [(ngModel)]="nuevoEvento.fecha" name="fecha" required />
+          </div>
+          <div class="form-group">
+            <label>Hora *</label>
+            <input type="time" [(ngModel)]="nuevoEvento.hora" name="hora" required />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Ubicación *</label>
+            <input type="text" [(ngModel)]="nuevoEvento.ubicacion" name="ubicacion" required />
+          </div>
+          <div class="form-group">
+            <label>Organizador *</label>
+            <input type="text" [(ngModel)]="nuevoEvento.organizador" name="organizador" required />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Capacidad Máxima *</label>
+            <input type="number" [(ngModel)]="nuevoEvento.capacidadMaxima" name="capacidad" min="1" required />
+          </div>
+          <div class="form-group">
+            <label>URL de Imagen (opcional)</label>
+            <input type="url" [(ngModel)]="nuevoEvento.imagen" name="imagen" placeholder="https://..." />
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Crear Evento</button>
+          <button type="button" class="btn btn-secondary" (click)="toggleFormulario()">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  }
+
+  <!-- Filtros -->
+  <div class="filtros card">
+    <div class="filtros-header">
+      <h3>Filtrar Eventos</h3>
+      <lucide-icon name="filter"></lucide-icon>
+    </div>
+    <div class="filtros-container">
+      <div class="filtro-item">
+        <label>Buscar:</label>
+        <div class="input-with-icon">
+          <lucide-icon name="search"></lucide-icon>
+          <input
+            type="text"
+            [(ngModel)]="filtro.busqueda"
+            (ngModelChange)="aplicarFiltros()"
+            placeholder="Título, descripción o ubicación..."
+          />
+        </div>
+      </div>
+
+      <div class="filtro-item">
+        <label>Categoría:</label>
+        <select [(ngModel)]="filtro.categoria" (ngModelChange)="aplicarFiltros()">
+          <option [value]="undefined">Todas</option>
+          @for (categoria of categorias; track categoria) {
+            <option [value]="categoria">{{ categoria }}</option>
+          }
+        </select>
+      </div>
+
+      <button class="btn btn-secondary btn-limpiar" (click)="limpiarFiltros()">
+        <lucide-icon name="x"></lucide-icon>
+        Limpiar
+      </button>
+    </div>
+  </div>
+
+  <!-- Lista de eventos -->
+  <div class="eventos-lista">
+    @if (eventos$ | async; as eventos) {
+      @if (eventos.length === 0) {
+        <div class="no-eventos card">
+          <lucide-icon name="calendar"></lucide-icon>
+          <p>No se encontraron eventos con los filtros aplicados.</p>
+        </div>
+      } @else {
+        <div class="eventos-grid">
+          @for (evento of eventos; track evento.id) {
+            <div class="evento-card">
+              @if (evento.imagen) {
+                <div class="evento-imagen">
+                  <img [src]="evento.imagen" [alt]="evento.titulo" />
+                  <span class="categoria-badge">{{ evento.categoria }}</span>
+                </div>
+              }
+
+              <div class="evento-contenido">
+                <div class="evento-header">
+                  <h3>{{ evento.titulo }}</h3>
+                  <button
+                    class="btn-like"
+                    [class.liked]="tieneLike(evento.id)"
+                    (click)="toggleLike(evento.id)"
+                    title="{{ tieneLike(evento.id) ? 'Quitar like' : 'Me gusta' }}"
+                  >
+                    <lucide-icon name="heart" [class.filled]="tieneLike(evento.id)"></lucide-icon>
+                    <span class="likes-count">{{ evento.likes.length }}</span>
+                  </button>
+                </div>
+
+                <p class="evento-descripcion">{{ evento.descripcion }}</p>
+
+                <div class="evento-detalles">
+                  <div class="detalle">
+                    <lucide-icon name="calendar"></lucide-icon>
+                    <span>{{ formatearFecha(evento.fecha) }}</span>
+                  </div>
+                  <div class="detalle">
+                    <lucide-icon name="clock"></lucide-icon>
+                    <span>{{ evento.hora }}</span>
+                  </div>
+                  <div class="detalle">
+                    <lucide-icon name="map-pin"></lucide-icon>
+                    <span>{{ evento.ubicacion }}</span>
+                  </div>
+                  <div class="detalle">
+                    <lucide-icon name="user"></lucide-icon>
+                    <span>{{ evento.organizador }}</span>
+                  </div>
+                </div>
+
+                <div class="evento-capacidad">
+                  <div class="capacidad-info">
+                    <span class="inscritos">
+                      <lucide-icon name="users"></lucide-icon>
+                      {{ evento.inscritos.length }} inscritos
+                    </span>
+                    <span class="disponibles">
+                      {{ getLugaresDisponibles(evento) }} disponibles
+                    </span>
+                  </div>
+                  <div class="capacidad-barra">
+                    <div
+                      class="capacidad-progreso"
+                      [style.width.%]="(evento.inscritos.length / evento.capacidadMaxima) * 100"
+                    ></div>
+                  </div>
+                </div>
+
+                <div class="evento-acciones">
+                  @if (estaInscrito(evento.id)) {
+                    <button class="btn btn-success" (click)="desinscribirse(evento.id)">
+                      <lucide-icon name="user"></lucide-icon>
+                      Inscrito
+                    </button>
+                  } @else {
+                    @if (getLugaresDisponibles(evento) > 0) {
+                      <button class="btn btn-primary" (click)="inscribirse(evento.id)">
+                        <lucide-icon name="plus"></lucide-icon>
+                        Inscribirse
+                      </button>
+                    } @else {
+                      <button class="btn btn-secondary" disabled>
+                        Evento Lleno
+                      </button>
+                    }
+                  }
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    }
+  </div>
+</div>

@@ -1,1 +1,627 @@
-<p>emprendimientos works!</p>
+<div class="emprendimientos-container">
+  <!-- Header Section -->
+  <header class="header">
+    <div class="header-content">
+      <h1 class="title">Emprendimientos</h1>
+      <button class="btn-crear" (click)="toggleFormulario()">
+        <lucide-icon name="plus"></lucide-icon>
+        Crear Emprendimiento
+      </button>
+    </div>
+  </header>
+
+  <!-- Creation Form -->
+  @if (mostrarFormulario) {
+    <div class="formulario-emprendimiento">
+      <div class="formulario-header">
+        <h2>Nuevo Emprendimiento</h2>
+      </div>
+      <form (ngSubmit)="crearEmprendimiento()">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="nombre">Nombre *</label>
+            <input
+              type="text"
+              id="nombre"
+              [(ngModel)]="nuevoEmprendimiento.nombre"
+              name="nombre"
+              required
+              placeholder="Ingrese el nombre del emprendimiento"
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="descripcion">Descripción *</label>
+            <textarea
+              id="descripcion"
+              [(ngModel)]="nuevoEmprendimiento.descripcion"
+              name="descripcion"
+              required
+              rows="3"
+              placeholder="Descripción breve del emprendimiento"
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="categoria">Categoría *</label>
+            <select
+              id="categoria"
+              [(ngModel)]="nuevoEmprendimiento.categoria"
+              name="categoria"
+              required
+            >
+              <option value="">Seleccione una categoría</option>
+              <option value="Tecnología">Tecnología</option>
+              <option value="Salud">Salud</option>
+              <option value="Educación">Educación</option>
+              <option value="Fintech">Fintech</option>
+              <option value="E-commerce">E-commerce</option>
+              <option value="Sostenibilidad">Sostenibilidad</option>
+              <option value="Agricultura">Agricultura</option>
+              <option value="Logística">Logística</option>
+              <option value="Entretenimiento">Entretenimiento</option>
+              <option value="Otro">Otro</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="etapa">Etapa *</label>
+            <select
+              id="etapa"
+              [(ngModel)]="nuevoEmprendimiento.etapa"
+              name="etapa"
+              required
+            >
+              <option value="">Seleccione una etapa</option>
+              <option value="Idea">Idea</option>
+              <option value="Prototipo">Prototipo</option>
+              <option value="MVP">MVP</option>
+              <option value="Crecimiento">Crecimiento</option>
+              <option value="Escalamiento">Escalamiento</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="descripcionDetallada">Descripción Detallada *</label>
+            <textarea
+              id="descripcionDetallada"
+              [(ngModel)]="nuevoEmprendimiento.descripcionDetallada"
+              name="descripcionDetallada"
+              required
+              rows="5"
+              placeholder="Descripción completa del emprendimiento"
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="problema">Problema que Resuelve *</label>
+            <textarea
+              id="problema"
+              [(ngModel)]="nuevoEmprendimiento.problema"
+              name="problema"
+              required
+              rows="3"
+              placeholder="¿Qué problema resuelve tu emprendimiento?"
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="solucion">Solución *</label>
+            <textarea
+              id="solucion"
+              [(ngModel)]="nuevoEmprendimiento.solucion"
+              name="solucion"
+              required
+              rows="3"
+              placeholder="¿Cómo lo resuelve?"
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="mercadoObjetivo">Mercado Objetivo *</label>
+            <textarea
+              id="mercadoObjetivo"
+              [(ngModel)]="nuevoEmprendimiento.mercadoObjetivo"
+              name="mercadoObjetivo"
+              required
+              rows="3"
+              placeholder="¿A quién va dirigido?"
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="propuestaValor">Propuesta de Valor *</label>
+            <textarea
+              id="propuestaValor"
+              [(ngModel)]="nuevoEmprendimiento.propuestaValor"
+              name="propuestaValor"
+              required
+              rows="3"
+              placeholder="¿Qué te hace único?"
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="equipoRequerido">Equipo Requerido</label>
+            <input
+              type="text"
+              id="equipoRequerido"
+              [(ngModel)]="nuevoEmprendimiento.equipoRequerido"
+              name="equipoRequerido"
+              placeholder="Ej: Desarrollador, Diseñador, Marketing (separados por comas)"
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="tecnologias">Tecnologías</label>
+            <input
+              type="text"
+              id="tecnologias"
+              [(ngModel)]="nuevoEmprendimiento.tecnologias"
+              name="tecnologias"
+              placeholder="Ej: React, Node.js, MongoDB (separados por comas)"
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group-checkbox">
+            <input
+              type="checkbox"
+              id="buscoInversion"
+              [(ngModel)]="nuevoEmprendimiento.buscoInversion"
+              name="buscoInversion"
+            />
+            <label for="buscoInversion">Busco Inversión</label>
+          </div>
+
+          <div class="form-group-checkbox">
+            <input
+              type="checkbox"
+              id="buscoColaboradores"
+              [(ngModel)]="nuevoEmprendimiento.buscoColaboradores"
+              name="buscoColaboradores"
+            />
+            <label for="buscoColaboradores">Busco Colaboradores</label>
+          </div>
+        </div>
+
+        @if (nuevoEmprendimiento.buscoInversion) {
+          <div class="form-row">
+            <div class="form-group">
+              <label for="montoInversion">Monto de Inversión</label>
+              <input
+                type="text"
+                id="montoInversion"
+                [(ngModel)]="nuevoEmprendimiento.montoInversion"
+                name="montoInversion"
+                placeholder="Ej: $50,000 - $100,000"
+              />
+            </div>
+          </div>
+        }
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="website">Sitio Web</label>
+            <input
+              type="url"
+              id="website"
+              [(ngModel)]="nuevoEmprendimiento.website"
+              name="website"
+              placeholder="https://ejemplo.com"
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="email">Email de Contacto</label>
+            <input
+              type="email"
+              id="email"
+              [(ngModel)]="nuevoEmprendimiento.email"
+              name="email"
+              placeholder="contacto@ejemplo.com"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="telefono">Teléfono</label>
+            <input
+              type="tel"
+              id="telefono"
+              [(ngModel)]="nuevoEmprendimiento.telefono"
+              name="telefono"
+              placeholder="+56 9 1234 5678"
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="imagen">URL de Imagen</label>
+            <input
+              type="url"
+              id="imagen"
+              [(ngModel)]="nuevoEmprendimiento.imagen"
+              name="imagen"
+              placeholder="https://ejemplo.com/imagen.jpg"
+            />
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-cancelar" (click)="toggleFormulario()">
+            Cancelar
+          </button>
+          <button type="submit" class="btn-submit">
+            Crear Emprendimiento
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+
+  <!-- Filters Section -->
+  <section class="filtros">
+    <div class="filtros-content">
+      <div class="filtros-row">
+        <div class="filtro-group">
+          <label for="busqueda">Buscar</label>
+          <input
+            type="text"
+            id="busqueda"
+            [(ngModel)]="filtro.busqueda"
+            (ngModelChange)="aplicarFiltros()"
+            placeholder="Buscar emprendimientos..."
+          />
+        </div>
+
+        <div class="filtro-group">
+          <label for="filtroCategoria">Categoría</label>
+          <select
+            id="filtroCategoria"
+            [(ngModel)]="filtro.categoria"
+            (ngModelChange)="aplicarFiltros()"
+          >
+            <option value="">Todas las categorías</option>
+            <option value="Tecnología">Tecnología</option>
+            <option value="Salud">Salud</option>
+            <option value="Educación">Educación</option>
+            <option value="Fintech">Fintech</option>
+            <option value="E-commerce">E-commerce</option>
+            <option value="Sostenibilidad">Sostenibilidad</option>
+            <option value="Agricultura">Agricultura</option>
+            <option value="Logística">Logística</option>
+            <option value="Entretenimiento">Entretenimiento</option>
+            <option value="Otro">Otro</option>
+          </select>
+        </div>
+
+        <div class="filtro-group">
+          <label for="filtroEtapa">Etapa</label>
+          <select
+            id="filtroEtapa"
+            [(ngModel)]="filtro.etapa"
+            (ngModelChange)="aplicarFiltros()"
+          >
+            <option value="">Todas las etapas</option>
+            <option value="Idea">Idea</option>
+            <option value="Prototipo">Prototipo</option>
+            <option value="MVP">MVP</option>
+            <option value="Crecimiento">Crecimiento</option>
+            <option value="Escalamiento">Escalamiento</option>
+          </select>
+        </div>
+
+        <div class="filtro-group-checkbox">
+          <input
+            type="checkbox"
+            id="filtroBuscoInversion"
+            [(ngModel)]="filtro.buscoInversion"
+            (ngModelChange)="aplicarFiltros()"
+          />
+          <label for="filtroBuscoInversion">Busco Inversión</label>
+        </div>
+
+        <div class="filtro-group-checkbox">
+          <input
+            type="checkbox"
+            id="filtroBuscoColaboradores"
+            [(ngModel)]="filtro.buscoColaboradores"
+            (ngModelChange)="aplicarFiltros()"
+          />
+          <label for="filtroBuscoColaboradores">Busco Colaboradores</label>
+        </div>
+
+        <button class="btn-limpiar" (click)="limpiarFiltros()">
+          Limpiar Filtros
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Emprendimientos Grid -->
+  @if (emprendimientos$ | async; as emprendimientos) {
+    <section class="emprendimientos-grid">
+      @if (emprendimientos.length > 0) {
+        @for (emprendimiento of emprendimientos; track emprendimiento.id) {
+          <article class="emprendimiento-card">
+            <div class="card-image">
+              @if (emprendimiento.imagen) {
+                <img [src]="emprendimiento.imagen" [alt]="emprendimiento.nombre" />
+              } @else {
+                <div class="placeholder-image">
+                  <span>Sin imagen</span>
+                </div>
+              }
+
+              <button
+                class="btn-like"
+                [class.liked]="tieneLike(emprendimiento.id)"
+                (click)="toggleLike(emprendimiento.id)"
+              >
+                <lucide-icon name="heart"></lucide-icon>
+              </button>
+            </div>
+
+            <div class="card-content">
+              <div class="card-header">
+                <h3 class="card-title">{{ emprendimiento.nombre }}</h3>
+                <div class="badges">
+                  <span class="badge badge-categoria">{{ emprendimiento.categoria }}</span>
+                  <span class="badge badge-etapa">{{ emprendimiento.etapa }}</span>
+                </div>
+              </div>
+
+              <p class="card-descripcion">{{ emprendimiento.descripcion }}</p>
+
+              <div class="card-creator">
+                <div class="creator-info">
+                  @if (emprendimiento.creador.avatar) {
+                    <img
+                      class="creator-avatar"
+                      [src]="emprendimiento.creador.avatar"
+                      [alt]="emprendimiento.creador.nombre"
+                    />
+                  } @else {
+                    <div class="creator-avatar-placeholder">
+                      {{ emprendimiento.creador.nombre.charAt(0) || 'U' }}
+                    </div>
+                  }
+                  <span class="creator-nombre">{{ emprendimiento.creador.nombre || 'Usuario' }}</span>
+                </div>
+              </div>
+
+              @if (emprendimiento.buscoInversion || emprendimiento.buscoColaboradores) {
+                <div class="card-badges">
+                  @if (emprendimiento.buscoInversion) {
+                    <span class="badge badge-inversion">Busco Inversión</span>
+                  }
+                  @if (emprendimiento.buscoColaboradores) {
+                    <span class="badge badge-colaboradores">Busco Colaboradores</span>
+                  }
+                </div>
+              }
+
+              @if (emprendimiento.tecnologias && emprendimiento.tecnologias.length > 0) {
+                <div class="card-tecnologias">
+                  @for (tech of emprendimiento.tecnologias.slice(0, 3); track tech) {
+                    <span class="tech-tag">{{ tech }}</span>
+                  }
+                  @if (emprendimiento.tecnologias.length > 3) {
+                    <span class="tech-tag-more">+{{ emprendimiento.tecnologias.length - 3 }}</span>
+                  }
+                </div>
+              }
+
+              <div class="card-stats">
+                <span class="stat">
+                  <lucide-icon name="heart"></lucide-icon>
+                  {{ emprendimiento.likes || 0 }}
+                </span>
+                <span class="stat">
+                  <lucide-icon name="eye"></lucide-icon>
+                  {{ emprendimiento.vistas || 0 }}
+                </span>
+              </div>
+
+              <div class="card-actions">
+                <button class="btn-detalle" (click)="verDetalle(emprendimiento)">
+                  Ver Detalle
+                </button>
+              </div>
+            </div>
+          </article>
+        }
+      } @else {
+        <div class="empty-state">
+          <p>No se encontraron emprendimientos con los filtros aplicados.</p>
+        </div>
+      }
+    </section>
+  }
+
+  <!-- Detail Modal -->
+  @if (emprendimientoSeleccionado) {
+    <div class="overlay" (click)="cerrarDetalle()">
+      <div class="modal-detalle" (click)="$event.stopPropagation()">
+        <button class="btn-cerrar" (click)="cerrarDetalle()">
+          <lucide-icon name="x"></lucide-icon>
+        </button>
+
+        <div class="modal-content">
+          <div class="modal-header">
+            @if (emprendimientoSeleccionado.imagen) {
+              <img
+                class="modal-imagen"
+                [src]="emprendimientoSeleccionado.imagen"
+                [alt]="emprendimientoSeleccionado.nombre"
+              />
+            }
+
+            <h2 class="modal-title">{{ emprendimientoSeleccionado.nombre }}</h2>
+
+            <div class="modal-badges">
+              <span class="badge badge-categoria">{{ emprendimientoSeleccionado.categoria }}</span>
+              <span class="badge badge-etapa">{{ emprendimientoSeleccionado.etapa }}</span>
+              @if (emprendimientoSeleccionado.buscoInversion) {
+                <span class="badge badge-inversion">Busco Inversión</span>
+              }
+              @if (emprendimientoSeleccionado.buscoColaboradores) {
+                <span class="badge badge-colaboradores">Busco Colaboradores</span>
+              }
+            </div>
+
+            <div class="modal-creator">
+              @if (emprendimientoSeleccionado.creador.avatar) {
+                <img
+                  class="creator-avatar"
+                  [src]="emprendimientoSeleccionado.creador.avatar"
+                  [alt]="emprendimientoSeleccionado.creador.nombre"
+                />
+              } @else {
+                <div class="creator-avatar-placeholder">
+                  {{ emprendimientoSeleccionado.creador.nombre.charAt(0) || 'U' }}
+                </div>
+              }
+              <div class="creator-details">
+                <span class="creator-nombre">{{ emprendimientoSeleccionado.creador.nombre || 'Usuario' }}</span>
+                <span class="fecha-creacion">{{ emprendimientoSeleccionado.createdAt | date: 'dd/MM/yyyy' }}</span>
+              </div>
+            </div>
+
+            <div class="modal-stats">
+              <span class="stat">
+                <lucide-icon name="heart"></lucide-icon>
+                {{ emprendimientoSeleccionado.likes || 0 }} likes
+              </span>
+              <span class="stat">
+                <lucide-icon name="eye"></lucide-icon>
+                {{ emprendimientoSeleccionado.vistas || 0 }} vistas
+              </span>
+            </div>
+          </div>
+
+          <div class="modal-body">
+            <section class="detalle-section">
+              <h3>Descripción</h3>
+              <p>{{ emprendimientoSeleccionado.descripcionDetallada || emprendimientoSeleccionado.descripcion }}</p>
+            </section>
+
+            <section class="detalle-section">
+              <h3>Problema que Resuelve</h3>
+              <p>{{ emprendimientoSeleccionado.problema }}</p>
+            </section>
+
+            <section class="detalle-section">
+              <h3>Solución</h3>
+              <p>{{ emprendimientoSeleccionado.solucion }}</p>
+            </section>
+
+            <section class="detalle-section">
+              <h3>Mercado Objetivo</h3>
+              <p>{{ emprendimientoSeleccionado.mercadoObjetivo }}</p>
+            </section>
+
+            <section class="detalle-section">
+              <h3>Propuesta de Valor</h3>
+              <p>{{ emprendimientoSeleccionado.propuestaValor }}</p>
+            </section>
+
+            @if (emprendimientoSeleccionado.tecnologias && emprendimientoSeleccionado.tecnologias.length > 0) {
+              <section class="detalle-section">
+                <h3>Tecnologías</h3>
+                <div class="tecnologias-list">
+                  @for (tech of emprendimientoSeleccionado.tecnologias; track tech) {
+                    <span class="tech-tag">{{ tech }}</span>
+                  }
+                </div>
+              </section>
+            }
+
+            @if (emprendimientoSeleccionado.equipoRequerido && emprendimientoSeleccionado.equipoRequerido.length > 0) {
+              <section class="detalle-section">
+                <h3>Equipo Requerido</h3>
+                <div class="equipo-list">
+                  @for (rol of emprendimientoSeleccionado.equipoRequerido; track rol) {
+                    <span class="equipo-tag">{{ rol }}</span>
+                  }
+                </div>
+              </section>
+            }
+
+            @if (emprendimientoSeleccionado.buscoInversion && emprendimientoSeleccionado.montoInversion) {
+              <section class="detalle-section">
+                <h3>Monto de Inversión</h3>
+                <p>{{ emprendimientoSeleccionado.montoInversion }}</p>
+              </section>
+            }
+
+            @if (emprendimientoSeleccionado.website || emprendimientoSeleccionado.email || emprendimientoSeleccionado.telefono) {
+              <section class="detalle-section">
+                <h3>Información de Contacto</h3>
+                <div class="contacto-info">
+                  @if (emprendimientoSeleccionado.website) {
+                    <div class="contacto-item">
+                      <span class="contacto-label">Sitio Web:</span>
+                      <a [href]="emprendimientoSeleccionado.website" target="_blank" rel="noopener noreferrer">
+                        {{ emprendimientoSeleccionado.website }}
+                      </a>
+                    </div>
+                  }
+                  @if (emprendimientoSeleccionado.email) {
+                    <div class="contacto-item">
+                      <span class="contacto-label">Email:</span>
+                      <a [href]="'mailto:' + emprendimientoSeleccionado.email">
+                        {{ emprendimientoSeleccionado.email }}
+                      </a>
+                    </div>
+                  }
+                  @if (emprendimientoSeleccionado.telefono) {
+                    <div class="contacto-item">
+                      <span class="contacto-label">Teléfono:</span>
+                      <a [href]="'tel:' + emprendimientoSeleccionado.telefono">
+                        {{ emprendimientoSeleccionado.telefono }}
+                      </a>
+                    </div>
+                  }
+                </div>
+              </section>
+            }
+          </div>
+
+          <div class="modal-footer">
+            <button
+              class="btn-like-modal"
+              [class.liked]="tieneLike(emprendimientoSeleccionado.id)"
+              (click)="toggleLike(emprendimientoSeleccionado.id)"
+            >
+              <lucide-icon name="heart"></lucide-icon>
+              {{ tieneLike(emprendimientoSeleccionado.id) ? 'Me gusta' : 'Me gusta' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>
