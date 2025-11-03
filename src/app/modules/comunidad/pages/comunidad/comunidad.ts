@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ComunidadService } from '../../services/comunidad.service';
 import { Miembro } from '../../models/comunidad.model';
-import { Observable } from 'rxjs';
+import { AlertService } from '../../../../shared/services/alert.service';
 
 @Component({
   selector: 'app-comunidad',
@@ -10,27 +10,80 @@ import { Observable } from 'rxjs';
   styleUrl: './comunidad.css',
 })
 export class Comunidad implements OnInit {
-  miembros$: Observable<Miembro[]>;
+  miembros: Miembro[] = [];
+  miembrosFiltrados: Miembro[] = [];
+  cargando: boolean = false;
+  
+  // Filtros
+  busqueda: string = '';
+  carreraSeleccionada: string = '';
+  carreras: string[] = [];
 
-  constructor(private comunidadService: ComunidadService) {
-    this.miembros$ = this.comunidadService.getMiembros();
+  constructor(
+    private comunidadService: ComunidadService,
+    private alertService: AlertService
+  ) {}
+
+  async ngOnInit(): Promise<void> {
+    await this.cargarMiembros();
   }
 
-  ngOnInit(): void {}
-
-  verPerfil(miembro: Miembro): void {
-    console.log('Ver perfil de:', miembro.nombre);
+  async cargarMiembros(): Promise<void> {
+    console.log('🔧 Cargando miembros de la comunidad...');
+    this.cargando = true;
+    try {
+      this.miembros = await this.comunidadService.obtenerMiembros();
+      this.miembrosFiltrados = [...this.miembros];
+      this.extraerCarreras();
+      console.log('🔧 Miembros cargados:', this.miembros);
+    } catch (error) {
+      console.error('❌ Error al cargar miembros:', error);
+      await this.alertService.error('Error', 'No se pudieron cargar los miembros de la comunidad');
+    } finally {
+      this.cargando = false;
+    }
   }
 
-  conectar(id: string): void {
-    this.comunidadService.conectar(id);
+  extraerCarreras(): void {
+    const carrerasUnicas = new Set<string>();
+    this.miembros.forEach(miembro => {
+      if (miembro.carrera) {
+        carrerasUnicas.add(miembro.carrera);
+      }
+    });
+    this.carreras = Array.from(carrerasUnicas).sort();
   }
 
-  estaConectado(id: string): boolean {
-    return this.comunidadService.estaConectado(id);
+  aplicarFiltros(): void {
+    console.log('🔧 Aplicando filtros - Búsqueda:', this.busqueda, 'Carrera:', this.carreraSeleccionada);
+    
+    this.miembrosFiltrados = this.miembros.filter(miembro => {
+      // Filtro de búsqueda (nombre, apellido o correo)
+      const busquedaLower = this.busqueda.toLowerCase().trim();
+      const coincideBusqueda = !busquedaLower || 
+        miembro.nombre.toLowerCase().includes(busquedaLower) ||
+        miembro.apellido.toLowerCase().includes(busquedaLower) ||
+        miembro.correo.toLowerCase().includes(busquedaLower);
+
+      // Filtro de carrera
+      const coincideCarrera = !this.carreraSeleccionada || 
+        miembro.carrera === this.carreraSeleccionada;
+
+      return coincideBusqueda && coincideCarrera;
+    });
+
+    console.log('🔧 Miembros filtrados:', this.miembrosFiltrados.length, 'de', this.miembros.length);
   }
 
-  getSkillsLimitados(skills: string[]): string[] {
-    return skills.slice(0, 3);
+  limpiarFiltros(): void {
+    this.busqueda = '';
+    this.carreraSeleccionada = '';
+    this.miembrosFiltrados = [...this.miembros];
+  }
+
+  calcularIniciales(nombre: string, apellido: string): string {
+    const inicial1 = nombre ? nombre.charAt(0).toUpperCase() : '';
+    const inicial2 = apellido ? apellido.charAt(0).toUpperCase() : '';
+    return inicial1 + inicial2 || 'U';
   }
 }

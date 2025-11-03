@@ -8,7 +8,7 @@
       </div>
       <div class="header-date">
         <lucide-icon name="calendar"></lucide-icon>
-        <span>{{ fechaActual | date: 'EEEE, d MMMM yyyy':'':'es-ES' }}</span>
+        <span>{{ fechaActual | date: 'EEEE, d MMMM yyyy':'':'es' }}</span>
       </div>
     </div>
   </div>
@@ -121,7 +121,7 @@
             <div class="evento-item">
               <div class="evento-date">
                 <span class="date-day">{{ evento.fecha.getDate() }}</span>
-                <span class="date-month">{{ evento.fecha | date: 'MMM':'':'es-ES' }}</span>
+                <span class="date-month">{{ evento.fecha | date: 'MMM':'':'es' }}</span>
               </div>
               <div class="evento-info">
                 <h4>{{ evento.titulo }}</h4>

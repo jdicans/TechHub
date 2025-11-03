@@ -1,0 +1,211 @@
+<div class="perfil-container">
+  @if (cargando) {
+    <div class="loading-container">
+      <div class="spinner"></div>
+      <p>Cargando perfil...</p>
+    </div>
+  } @else {
+    <!-- Header con Botón Volver -->
+    <div class="perfil-header">
+      <button class="btn-back" (click)="volverSettings()">
+        <lucide-icon name="arrow-left"></lucide-icon>
+        <span>Volver</span>
+      </button>
+    </div>
+
+    <!-- Banner con Avatar -->
+    <div class="perfil-banner">
+      <div class="banner-gradient"></div>
+      <div class="avatar-section">
+        <div class="avatar-wrapper">
+          @if (avatarPreview) {
+            <img [src]="avatarPreview" alt="Avatar" class="avatar-image">
+          } @else if (perfil.foto_perfil) {
+            <img [src]="perfil.foto_perfil" alt="Avatar" class="avatar-image">
+          } @else {
+            <div class="avatar-placeholder">
+              <span class="avatar-initials">{{ iniciales }}</span>
+            </div>
+          }
+          @if (editando) {
+            <label class="avatar-upload">
+              <lucide-icon name="camera"></lucide-icon>
+              <input type="file" accept="image/*" (change)="onAvatarChange($event)" hidden>
+            </label>
+          }
+        </div>
+        <div class="user-info">
+          <h1 class="user-name">{{ perfil.nombre }} {{ perfil.apellido }}</h1>
+          <p class="user-career">{{ perfil.carrera || 'Carrera no especificada' }}</p>
+          <p class="user-email">
+            <lucide-icon name="mail"></lucide-icon>
+            {{ perfil.correo }}
+          </p>
+        </div>
+        @if (!editando) {
+          <button class="btn-edit" (click)="activarEdicion()">
+            <lucide-icon name="edit-2"></lucide-icon>
+            Editar perfil
+          </button>
+        }
+      </div>
+    </div>
+
+    <div class="perfil-content">
+      <!-- Información Personal -->
+      <div class="info-section">
+        <div class="section-header">
+          <h2 class="section-title">Información Personal</h2>
+          @if (editando) {
+            <div class="edit-actions">
+              <button class="btn-cancel" (click)="cancelarEdicion()">
+                <lucide-icon name="x"></lucide-icon>
+                Cancelar
+              </button>
+              <button class="btn-save" (click)="guardarCambios()">
+                <lucide-icon name="check"></lucide-icon>
+                Guardar cambios
+              </button>
+            </div>
+          }
+        </div>
+
+        <div class="info-grid">
+          <!-- Nombre -->
+          <div class="info-card">
+            <div class="info-icon">
+              <lucide-icon name="user"></lucide-icon>
+            </div>
+            <div class="info-content">
+              <label class="info-label">Nombre</label>
+              @if (editando) {
+                <input 
+                  type="text" 
+                  class="info-input" 
+                  [(ngModel)]="perfilEditado.nombre"
+                  placeholder="Ingresa tu nombre">
+              } @else {
+                <p class="info-value">{{ perfil.nombre || 'No especificado' }}</p>
+              }
+            </div>
+          </div>
+
+          <!-- Apellido -->
+          <div class="info-card">
+            <div class="info-icon">
+              <lucide-icon name="user"></lucide-icon>
+            </div>
+            <div class="info-content">
+              <label class="info-label">Apellido</label>
+              @if (editando) {
+                <input 
+                  type="text" 
+                  class="info-input" 
+                  [(ngModel)]="perfilEditado.apellido"
+                  placeholder="Ingresa tu apellido">
+              } @else {
+                <p class="info-value">{{ perfil.apellido || 'No especificado' }}</p>
+              }
+            </div>
+          </div>
+
+          <!-- Cédula -->
+          <div class="info-card">
+            <div class="info-icon">
+              <lucide-icon name="credit-card"></lucide-icon>
+            </div>
+            <div class="info-content">
+              <label class="info-label">Cédula</label>
+              <p class="info-value">{{ perfil.cedula || 'No especificado' }}</p>
+              <span class="info-help">No se puede modificar</span>
+            </div>
+          </div>
+
+          <!-- Correo -->
+          <div class="info-card">
+            <div class="info-icon">
+              <lucide-icon name="mail"></lucide-icon>
+            </div>
+            <div class="info-content">
+              <label class="info-label">Correo electrónico</label>
+              <p class="info-value">{{ perfil.correo || 'No especificado' }}</p>
+              <span class="info-help">No se puede modificar</span>
+            </div>
+          </div>
+
+          <!-- Teléfono -->
+          <div class="info-card">
+            <div class="info-icon">
+              <lucide-icon name="phone"></lucide-icon>
+            </div>
+            <div class="info-content">
+              <label class="info-label">Teléfono</label>
+              @if (editando) {
+                <input 
+                  type="tel" 
+                  class="info-input" 
+                  [(ngModel)]="perfilEditado.telefono"
+                  placeholder="Ingresa tu teléfono">
+              } @else {
+                <p class="info-value">{{ perfil.telefono || 'No especificado' }}</p>
+              }
+            </div>
+          </div>
+
+          <!-- Carrera -->
+          <div class="info-card">
+            <div class="info-icon">
+              <lucide-icon name="graduation-cap"></lucide-icon>
+            </div>
+            <div class="info-content">
+              <label class="info-label">Carrera</label>
+              @if (editando) {
+                <select class="info-input" [(ngModel)]="perfilEditado.carrera">
+                  <option value="">Selecciona tu carrera</option>
+                  <option value="Ingeniería en Software">Ingeniería en Software</option>
+                  <option value="Ingeniería en Sistemas">Ingeniería en Sistemas</option>
+                  <option value="Ingeniería Civil">Ingeniería Civil</option>
+                  <option value="Ingeniería Industrial">Ingeniería Industrial</option>
+                  <option value="Administración de Empresas">Administración de Empresas</option>
+                  <option value="Contaduría">Contaduría</option>
+                  <option value="Diseño Gráfico">Diseño Gráfico</option>
+                  <option value="Otra">Otra</option>
+                </select>
+              } @else {
+                <p class="info-value">{{ perfil.carrera || 'No especificado' }}</p>
+              }
+            </div>
+          </div>
+
+          <!-- Rol -->
+          <div class="info-card">
+            <div class="info-icon">
+              <lucide-icon name="shield"></lucide-icon>
+            </div>
+            <div class="info-content">
+              <label class="info-label">Rol</label>
+              <p class="info-value">
+                @if (perfil.id_rol === 1) {
+                  <span class="badge badge-admin">Administrador</span>
+                } @else {
+                  <span class="badge badge-user">Usuario</span>
+                }
+              </p>
+            </div>
+          </div>
+
+          <!-- Fecha de registro -->
+          <div class="info-card">
+            <div class="info-icon">
+              <lucide-icon name="calendar"></lucide-icon>
+            </div>
+            <div class="info-content">
+              <label class="info-label">Miembro desde</label>
+              <p class="info-value">{{ (perfil.fecha_registro | date: 'dd/MM/yyyy':'':'es') || 'No disponible' }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

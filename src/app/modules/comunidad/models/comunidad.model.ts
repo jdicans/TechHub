@@ -1,12 +1,7 @@
 export interface Miembro {
-  id: string;
+  id_usuario: number;
   nombre: string;
-  avatar: string;
-  rol: string;
-  especialidad: string;
-  ubicacion: string;
-  conexiones: number;
-  proyectos: number;
-  skills: string[];
-  conectados: string[];
+  apellido: string;
+  correo: string;
+  carrera?: string;
 }

@@ -28,7 +28,28 @@
 
     <!-- Navegación -->
     <nav class="nav-menu">
-      @for (item of menuItems; track item.route) {
+      @for (item of menuItemsPrincipales; track item.route) {
+        <a
+          [routerLink]="item.route"
+          routerLinkActive="active"
+          class="nav-item"
+          (click)="mostrarMenuMovil = false"
+        >
+          <div class="nav-icon">
+            <lucide-icon [name]="item.icon"></lucide-icon>
+          </div>
+          <div class="nav-content">
+            <span class="nav-label">{{ item.label }}</span>
+            <span class="nav-description">{{ item.description }}</span>
+          </div>
+        </a>
+      }
+      
+      <div class="nav-divider">
+        <span>Cuenta</span>
+      </div>
+      
+      @for (item of menuItemsCuenta; track item.route) {
         <a
           [routerLink]="item.route"
           routerLinkActive="active"

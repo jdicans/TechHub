@@ -25,21 +25,23 @@ export class AlertService {
     });
   }
 
-  warning(title: string, text?: string) {
+  warning(title: string, textOrHtml?: string, isHtml: boolean = false) {
     return Swal.fire({
       icon: 'warning',
       title,
-      text,
-      confirmButtonColor: '#2563eb'
+      ...(isHtml ? { html: textOrHtml } : { text: textOrHtml }),
+      confirmButtonColor: '#2563eb',
+      confirmButtonText: 'Entendido'
     });
   }
 
-  info(title: string, text?: string) {
+  info(title: string, textOrHtml?: string, isHtml: boolean = false) {
     return Swal.fire({
       icon: 'info',
       title,
-      text,
-      confirmButtonColor: '#2563eb'
+      ...(isHtml ? { html: textOrHtml } : { text: textOrHtml }),
+      confirmButtonColor: '#2563eb',
+      confirmButtonText: 'Entendido'
     });
   }
 

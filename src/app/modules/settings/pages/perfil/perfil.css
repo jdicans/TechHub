@@ -1,0 +1,773 @@
+/* ============================================
+   PERFIL - DISEÑO MODERNO
+   ======================================== */
+
+.perfil-container {
+  min-height: 100vh;
+  background: var(--bg-secondary);
+}
+
+/* ========================================
+   LOADING
+   ======================================== */
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  gap: var(--spacing-lg);
+}
+
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid var(--border-color);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ========================================
+   HEADER
+   ======================================== */
+
+.perfil-header {
+  padding: var(--spacing-xl) var(--spacing-2xl);
+}
+
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-back:hover {
+  background: var(--bg-tertiary);
+  transform: translateX(-4px);
+  border-color: var(--primary);
+}
+
+.btn-back lucide-icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* ========================================
+   BANNER & AVATAR
+   ======================================== */
+
+.perfil-banner {
+  position: relative;
+  margin: 0 var(--spacing-2xl) var(--spacing-2xl);
+  background: var(--bg-primary);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+
+.banner-gradient {
+  height: 200px;
+  background: linear-gradient(135deg, var(--primary) 0%, #1e40af 100%);
+}
+
+.avatar-section {
+  position: relative;
+  padding: 0 var(--spacing-2xl) var(--spacing-2xl);
+  margin-top: -80px;
+  display: flex;
+  align-items: flex-end;
+  gap: var(--spacing-xl);
+}
+
+.avatar-wrapper {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.avatar-image,
+.avatar-placeholder {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  border: 6px solid var(--bg-primary);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.avatar-image {
+  object-fit: cover;
+}
+
+.avatar-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--primary) 0%, #1e40af 100%);
+}
+
+.avatar-initials {
+  font-size: 48px;
+  font-weight: 700;
+  color: white;
+}
+
+.avatar-upload {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  width: 40px;
+  height: 40px;
+  background: var(--primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+  transition: all 0.3s ease;
+}
+
+.avatar-upload:hover {
+  transform: scale(1.1);
+  background: var(--primary-dark);
+}
+
+.avatar-upload lucide-icon {
+  width: 20px;
+  height: 20px;
+  color: white;
+}
+
+.user-info {
+  flex: 1;
+  padding-bottom: var(--spacing-md);
+}
+
+.user-name {
+  font-size: var(--font-size-3xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-xs) 0;
+}
+
+.user-career {
+  font-size: var(--font-size-lg);
+  color: var(--text-secondary);
+  margin: 0 0 var(--spacing-sm) 0;
+}
+
+.user-email {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: var(--font-size-base);
+  color: var(--text-tertiary);
+  margin: 0;
+}
+
+.user-email lucide-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.btn-edit {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: var(--spacing-md);
+}
+
+.btn-edit:hover {
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(37, 99, 235, 0.3);
+}
+
+.btn-edit lucide-icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* ========================================
+   CONTENT
+   ======================================== */
+
+.perfil-content {
+  padding: 0 var(--spacing-2xl) var(--spacing-2xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xl);
+}
+
+.section-title {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-lg) 0;
+}
+
+/* ========================================
+   STATS
+   ======================================== */
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-lg);
+}
+
+.stat-card {
+  background: var(--bg-primary);
+  border-radius: 12px;
+  padding: var(--spacing-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  border: 2px solid var(--border-color);
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+.stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.stat-card-primary .stat-icon {
+  background: rgba(37, 99, 235, 0.1);
+  color: var(--primary);
+}
+
+.stat-card-success .stat-icon {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--success);
+}
+
+.stat-card-warning .stat-icon {
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--warning);
+}
+
+.stat-card-info .stat-icon {
+  background: rgba(6, 182, 212, 0.1);
+  color: var(--info);
+}
+
+.stat-icon lucide-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.stat-content {
+  flex: 1;
+}
+
+.stat-value {
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-xs) 0;
+}
+
+.stat-label {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* ========================================
+   INFO SECTION
+   ======================================== */
+
+.info-section {
+  background: var(--bg-primary);
+  border-radius: 16px;
+  padding: var(--spacing-2xl);
+  box-shadow: var(--shadow-sm);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-lg);
+}
+
+.edit-actions {
+  display: flex;
+  gap: var(--spacing-md);
+}
+
+.btn-cancel {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: transparent;
+  color: var(--text-secondary);
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-cancel:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.btn-save {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--success);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-save:hover {
+  background: var(--success-dark);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.btn-cancel lucide-icon,
+.btn-save lucide-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--spacing-lg);
+}
+
+.info-card {
+  display: flex;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  border-radius: 10px;
+  background: var(--bg-secondary);
+  transition: all 0.3s ease;
+}
+
+.info-card:hover {
+  background: var(--bg-tertiary);
+}
+
+.info-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: rgba(37, 99, 235, 0.1);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.info-icon lucide-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.info-content {
+  flex: 1;
+}
+
+.info-label {
+  display: block;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: var(--spacing-xs);
+}
+
+.info-value {
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.info-input {
+  width: 100%;
+  padding: var(--spacing-sm);
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-base);
+  color: var(--text-primary);
+  background: var(--bg-primary);
+  transition: all 0.3s ease;
+}
+
+.info-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.info-help {
+  display: block;
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  margin-top: var(--spacing-xs);
+  font-style: italic;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: 20px;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+}
+
+.badge-admin {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--danger);
+}
+
+.badge-user {
+  background: rgba(37, 99, 235, 0.1);
+  color: var(--primary);
+}
+
+/* ========================================
+   ACTIVITY
+   ======================================== */
+
+.activity-section {
+  background: var(--bg-primary);
+  border-radius: 16px;
+  padding: var(--spacing-2xl);
+  box-shadow: var(--shadow-sm);
+}
+
+.activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.activity-item {
+  display: flex;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  border-radius: 10px;
+  background: var(--bg-secondary);
+  transition: all 0.3s ease;
+}
+
+.activity-item:hover {
+  background: var(--bg-tertiary);
+  transform: translateX(4px);
+}
+
+.activity-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.activity-evento {
+  background: rgba(37, 99, 235, 0.1);
+  color: var(--primary);
+}
+
+.activity-post {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--success);
+}
+
+.activity-emprendimiento {
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--warning);
+}
+
+.activity-comentario {
+  background: rgba(6, 182, 212, 0.1);
+  color: var(--info);
+}
+
+.activity-icon lucide-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.activity-content {
+  flex: 1;
+}
+
+.activity-title {
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-xs) 0;
+}
+
+.activity-date {
+  font-size: var(--font-size-sm);
+  color: var(--text-tertiary);
+  margin: 0;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
+@media (max-width: 1024px) {
+  .info-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .perfil-header,
+  .perfil-banner,
+  .perfil-content {
+    margin-left: var(--spacing-lg);
+    margin-right: var(--spacing-lg);
+  }
+
+  .perfil-content {
+    padding: 0 var(--spacing-lg) var(--spacing-lg);
+  }
+
+  .avatar-section {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 0 var(--spacing-lg) var(--spacing-lg);
+  }
+
+  .avatar-image,
+  .avatar-placeholder {
+    width: 120px;
+    height: 120px;
+  }
+
+  .avatar-initials {
+    font-size: 36px;
+  }
+
+  .user-info {
+    padding-bottom: 0;
+  }
+
+  .user-name {
+    font-size: var(--font-size-2xl);
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+  }
+
+  .edit-actions {
+    width: 100%;
+  }
+
+  .btn-cancel,
+  .btn-save {
+    flex: 1;
+  }
+}
+
+@media (max-width: 480px) {
+  .perfil-header,
+  .perfil-banner,
+  .perfil-content {
+    margin-left: var(--spacing-md);
+    margin-right: var(--spacing-md);
+  }
+
+  .perfil-content {
+    padding: 0 var(--spacing-md) var(--spacing-md);
+  }
+
+  .banner-gradient {
+    height: 150px;
+  }
+
+  .avatar-section {
+    margin-top: -60px;
+  }
+
+  .info-section,
+  .activity-section {
+    padding: var(--spacing-lg);
+  }
+
+  .btn-back span {
+    display: none;
+  }
+}
+
+/* ========================================
+   FORZAR COLORES OSCUROS PARA TEMA CLARO
+   ======================================== */
+
+/* Asegurar que los textos principales sean oscuros */
+.perfil-container {
+  color: #111827;
+}
+
+.user-name {
+  color: #111827 !important;
+}
+
+.user-career {
+  color: #6b7280 !important;
+}
+
+.user-email {
+  color: #9ca3af !important;
+}
+
+.stat-value {
+  color: #111827 !important;
+}
+
+.stat-label {
+  color: #6b7280 !important;
+}
+
+.info-label {
+  color: #6b7280 !important;
+}
+
+.info-value {
+  color: #111827 !important;
+}
+
+.activity-title {
+  color: #111827 !important;
+}
+
+.activity-date {
+  color: #9ca3af !important;
+}
+
+.section-title {
+  color: #111827 !important;
+}
+
+.page-title {
+  color: #111827 !important;
+}
+
+.page-subtitle {
+  color: #6b7280 !important;
+}
+
+/* Asegurar inputs con buen contraste */
+.info-input {
+  color: #111827 !important;
+  background: #ffffff !important;
+  border-color: #e5e7eb !important;
+}
+
+.info-input:focus {
+  border-color: #2563eb !important;
+}
+
+/* Botones con texto visible */
+.btn-back {
+  color: #6b7280 !important;
+  background: #ffffff !important;
+  border-color: #e5e7eb !important;
+}
+
+.btn-back:hover {
+  background: #f3f4f6 !important;
+}
+
+/* Cards con fondo claro */
+.info-card {
+  background: #f9fafb !important;
+}
+
+.info-card:hover {
+  background: #f3f4f6 !important;
+}
+
+.stat-card {
+  background: #ffffff !important;
+  border-color: #e5e7eb !important;
+}
+
+.activity-item {
+  background: #f9fafb !important;
+}
+
+.activity-item:hover {
+  background: #f3f4f6 !important;
+}
+
+.perfil-banner {
+  background: #ffffff !important;
+}
+
+.info-section,
+.activity-section {
+  background: #ffffff !important;
+}

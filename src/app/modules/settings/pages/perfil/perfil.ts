@@ -1,25 +1,21 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, LOCALE_ID } from '@angular/core';
+import { CommonModule, registerLocaleData } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { LucideAngularModule, ArrowLeft, User, Mail, Phone, GraduationCap, CreditCard, Shield, Calendar, Edit2, Check, X, Camera } from 'lucide-angular';
 import { UsuarioPerfil } from '../../models/perfil.model';
 import { AlertService } from '../../../../shared/services/alert.service';
 import { PerfilService } from '../../services/perfil.service';
+import localeEs from '@angular/common/locales/es';
 
-interface Estadistica {
-  label: string;
-  valor: number;
-  icon: string;
-  color: string;
-}
-
-interface ActividadReciente {
-  tipo: 'evento' | 'post' | 'emprendimiento' | 'comentario';
-  titulo: string;
-  fecha: Date;
-  icon: string;
-}
+// Registrar locale español
+registerLocaleData(localeEs, 'es');
 
 @Component({
   selector: 'app-perfil',
-  standalone: false,
+  standalone: true,
+  imports: [CommonModule, FormsModule, LucideAngularModule],
+  providers: [{ provide: LOCALE_ID, useValue: 'es' }],
   templateUrl: './perfil.html',
   styleUrl: './perfil.css',
 })
@@ -32,20 +28,6 @@ export class Perfil implements OnInit {
     id_rol: 2 // Usuario por defecto
   };
 
-  estadisticas: Estadistica[] = [
-    { label: 'Eventos asistidos', valor: 12, icon: 'calendar', color: 'primary' },
-    { label: 'Posts publicados', valor: 24, icon: 'file-text', color: 'success' },
-    { label: 'Conexiones', valor: 156, icon: 'users', color: 'info' },
-    { label: 'Proyectos', valor: 8, icon: 'lightbulb', color: 'warning' }
-  ];
-
-  actividadesRecientes: ActividadReciente[] = [
-    { tipo: 'evento', titulo: 'Participó en "Angular Workshop 2024"', fecha: new Date(2024, 9, 28), icon: 'calendar' },
-    { tipo: 'post', titulo: 'Publicó "Introducción a Signals en Angular"', fecha: new Date(2024, 9, 25), icon: 'file-text' },
-    { tipo: 'emprendimiento', titulo: 'Creó proyecto "TaskHub - Gestión de Tareas"', fecha: new Date(2024, 9, 20), icon: 'lightbulb' },
-    { tipo: 'comentario', titulo: 'Comentó en "Mejores prácticas de TypeScript"', fecha: new Date(2024, 9, 18), icon: 'message-circle' }
-  ];
-
   editando: boolean = false;
   perfilEditado: UsuarioPerfil = { ...this.perfil };
   avatarPreview: string = '';
@@ -54,26 +36,34 @@ export class Perfil implements OnInit {
 
   constructor(
     private alertService: AlertService,
-    private perfilService: PerfilService
+    private perfilService: PerfilService,
+    private router: Router
   ) {
+    console.log('🔧 Perfil constructor ejecutado');
     this.calcularIniciales();
   }
 
   async ngOnInit(): Promise<void> {
+    console.log('🔧 Perfil ngOnInit ejecutado');
     await this.cargarPerfil();
   }
 
   async cargarPerfil(): Promise<void> {
+    console.log('🔧 Cargando perfil...');
     this.cargando = true;
     try {
+      console.log('🔧 Llamando a perfilService.obtenerPerfil()');
       this.perfil = await this.perfilService.obtenerPerfil();
+      console.log('🔧 Perfil cargado:', this.perfil);
       this.perfilEditado = { ...this.perfil };
       this.calcularIniciales();
+      console.log('🔧 Iniciales calculadas:', this.iniciales);
     } catch (error) {
-      console.error('Error al cargar perfil:', error);
+      console.error('❌ Error al cargar perfil:', error);
       await this.alertService.error('Error', 'No se pudo cargar el perfil');
     } finally {
       this.cargando = false;
+      console.log('🔧 cargando = false');
     }
   }
 
@@ -159,29 +149,7 @@ export class Perfil implements OnInit {
     this.avatarPreview = '';
   }
 
-  getActividadIcon(tipo: string): string {
-    const iconos: Record<string, string> = {
-      'evento': 'calendar',
-      'post': 'file-text',
-      'emprendimiento': 'lightbulb',
-      'comentario': 'message-circle'
-    };
-    return iconos[tipo] || 'circle';
-  }
-
-  getEstadisticaClass(color: string): string {
-    return `stat-card-${color}`;
-  }
-
-  formatearFecha(fecha: Date): string {
-    const ahora = new Date();
-    const diff = ahora.getTime() - fecha.getTime();
-    const dias = Math.floor(diff / (1000 * 60 * 60 * 24));
-
-    if (dias === 0) return 'Hoy';
-    if (dias === 1) return 'Ayer';
-    if (dias < 7) return `Hace ${dias} días`;
-    if (dias < 30) return `Hace ${Math.floor(dias / 7)} semanas`;
-    return `Hace ${Math.floor(dias / 30)} meses`;
+  volverSettings(): void {
+    this.router.navigate(['/settings']);
   }
 }

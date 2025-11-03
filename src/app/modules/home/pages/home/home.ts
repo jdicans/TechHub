@@ -16,7 +16,7 @@ interface MenuItem {
   styleUrl: './home.css',
 })
 export class Home {
-  menuItems: MenuItem[] = [
+  menuItemsPrincipales: MenuItem[] = [
     {
       label: 'Dashboard',
       icon: 'home',
@@ -46,12 +46,21 @@ export class Home {
       icon: 'users',
       route: 'comunidad',
       description: 'Red de contactos'
-    },
+    }
+  ];
+
+  menuItemsCuenta: MenuItem[] = [
     {
       label: 'Perfil',
       icon: 'user',
-      route: 'perfil',
+      route: '/settings/perfil',
       description: 'Mi perfil'
+    },
+    {
+      label: 'Configuración',
+      icon: 'settings',
+      route: '/settings',
+      description: 'Ajustes y privacidad'
     }
   ];
 

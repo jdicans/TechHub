@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import { AlertService } from '../../../../shared/services/alert.service';
+import { PerfilService } from '../../services/perfil.service';
 
 @Component({
   selector: 'app-password',
@@ -37,7 +38,8 @@ export class PasswordComponent {
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private alertService: AlertService
+    private alertService: AlertService,
+    private perfilService: PerfilService
   ) {
     this.passwordForm = this.fb.group({
       passwordActual: ['', [Validators.required]],
@@ -161,29 +163,65 @@ export class PasswordComponent {
 
     this.cargando = true;
 
-    // Simular llamada API
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    try {
+      console.log('🔐 Iniciando cambio de contraseña...');
+      
+      const passwordActual = this.passwordForm.get('passwordActual')?.value;
+      const passwordNueva = this.passwordForm.get('passwordNueva')?.value;
 
-    // Simular validación de contraseña actual
-    const passwordActual = this.passwordForm.get('passwordActual')?.value;
-    if (passwordActual !== 'password123') { // Simulación
+      // Llamar a la API para cambiar la contraseña
+      await this.perfilService.cambiarContrasena(passwordActual, passwordNueva);
+
+      console.log('✅ Contraseña cambiada exitosamente');
+
       this.cargando = false;
-      this.alertService.error(
-        'Contraseña incorrecta',
-        'La contraseña actual no es correcta'
+      
+      await this.alertService.success(
+        'Contraseña actualizada',
+        'Tu contraseña ha sido cambiada exitosamente'
       );
-      return;
+
+      // Limpiar el formulario
+      this.passwordForm.reset();
+      this.requisitos.forEach(r => r.valido = false);
+      this.fortaleza = { nivel: 0, texto: 'Muy débil', color: 'danger', porcentaje: 0 };
+
+      // Opcional: Redirigir a settings después de un cambio exitoso
+      setTimeout(() => {
+        this.router.navigate(['/settings']);
+      }, 1500);
+
+    } catch (error: any) {
+      console.error('❌ Error al cambiar la contraseña:', error);
+      this.cargando = false;
+
+      // Manejar diferentes tipos de errores
+      if (error.response) {
+        const errorMessage = error.response.data?.message || error.response.data?.error;
+        
+        if (error.response.status === 401 || errorMessage?.includes('actual')) {
+          await this.alertService.error(
+            'Contraseña incorrecta',
+            'La contraseña actual no es correcta'
+          );
+        } else if (error.response.status === 400) {
+          await this.alertService.error(
+            'Error de validación',
+            errorMessage || 'Verifica que los datos sean correctos'
+          );
+        } else {
+          await this.alertService.error(
+            'Error al cambiar contraseña',
+            errorMessage || 'No se pudo cambiar la contraseña. Intenta nuevamente'
+          );
+        }
+      } else {
+        await this.alertService.error(
+          'Error de conexión',
+          'No se pudo conectar con el servidor. Verifica tu conexión e intenta nuevamente'
+        );
+      }
     }
-
-    this.cargando = false;
-    this.alertService.success(
-      'Contraseña actualizada',
-      'Tu contraseña ha sido cambiada exitosamente'
-    );
-
-    this.passwordForm.reset();
-    this.requisitos.forEach(r => r.valido = false);
-    this.fortaleza = { nivel: 0, texto: 'Muy débil', color: 'danger', porcentaje: 0 };
   }
 
   marcarCamposComoTocados(): void {

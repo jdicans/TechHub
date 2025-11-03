@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SettingsRoutingModule } from './settings-routing.module';
-import { LucideAngularModule, Settings, Bell, Lock, Palette, User, Shield, Eye, EyeOff, Check, X, ChevronRight, Info, ArrowLeft, Moon, Volume2, ArrowRight, Mail, MessageCircle, MessageSquare, Users, FileText, Lightbulb, Calendar, Minus, Circle, CheckCircle, RotateCcw, Save, Globe, Phone, MapPin, Activity, Folder, Search, BarChart, Download, Trash2, AlertTriangle, Key, AlertCircle, Sparkles, ShieldCheck, Sun, Monitor, Layout, Droplet, Zap, UserCheck, UserX, ChevronsLeft, ChevronsRight, ChevronLeft } from 'lucide-angular';
+import { LucideAngularModule, Settings, Bell, Lock, Palette, User, Shield, Eye, EyeOff, Check, X, ChevronRight, Info, ArrowLeft, Moon, Volume2, ArrowRight, Mail, MessageCircle, MessageSquare, Users, FileText, Lightbulb, Calendar, Minus, Circle, CheckCircle, RotateCcw, Save, Globe, Phone, MapPin, Activity, Folder, Search, BarChart, Download, Trash2, AlertTriangle, Key, AlertCircle, Sparkles, ShieldCheck, Sun, Monitor, Layout, Droplet, Zap, UserCheck, UserX, ChevronsLeft, ChevronsRight, ChevronLeft, GraduationCap, CreditCard, Edit2, Camera, Hammer, Wrench } from 'lucide-angular';
 
 @NgModule({
   imports: [
@@ -14,7 +14,8 @@ import { LucideAngularModule, Settings, Bell, Lock, Palette, User, Shield, Eye, 
       Minus, Circle, CheckCircle, RotateCcw, Save, Globe, Phone, MapPin,
       Activity, Folder, Search, BarChart, Download, Trash2, AlertTriangle,
       Key, AlertCircle, Sparkles, ShieldCheck, Sun, Monitor,
-      Layout, Droplet, Zap, UserCheck, UserX, ChevronsLeft, ChevronsRight, ChevronLeft
+      Layout, Droplet, Zap, UserCheck, UserX, ChevronsLeft, ChevronsRight, ChevronLeft,
+      GraduationCap, CreditCard, Edit2, Camera, Hammer, Wrench
     })
   ]
 })

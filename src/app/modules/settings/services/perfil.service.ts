@@ -17,9 +17,21 @@ export class PerfilService {
   // Obtener el perfil del usuario actual
   async obtenerPerfil(): Promise<UsuarioSinContrasena> {
     try {
-      return await apiClient.get('/usuarios/profile');
+      const response = await apiClient.get('/usuarios/profile');
+      console.log('📡 Respuesta de la API:', response);
+      console.log('📡 response.data:', response.data);
+      
+      // La API devuelve { success: true, data: { ...usuario } }
+      if (response.data && response.data.data) {
+        console.log('✅ Datos del usuario:', response.data.data);
+        return response.data.data;
+      }
+      
+      // Si la estructura es diferente, devolver response.data directamente
+      console.log('✅ Devolviendo response.data directamente');
+      return response.data;
     } catch (error) {
-      console.error('Error al obtener el perfil:', error);
+      console.error('❌ Error al obtener el perfil:', error);
       throw error;
     }
   }
@@ -27,7 +39,8 @@ export class PerfilService {
   // Actualizar el perfil del usuario (necesita el ID del usuario)
   async actualizarPerfil(idUsuario: number, data: ActualizarPerfilRequest): Promise<UsuarioSinContrasena> {
     try {
-      return await apiClient.put(`/usuarios/${idUsuario}`, data);
+      const response = await apiClient.put(`/usuarios/${idUsuario}`, data);
+      return response.data;
     } catch (error) {
       console.error('Error al actualizar el perfil:', error);
       throw error;
@@ -37,12 +50,20 @@ export class PerfilService {
   // Cambiar la contraseña del usuario
   async cambiarContrasena(contrasenaActual: string, contrasenaNueva: string): Promise<void> {
     try {
-      await apiClient.put('/usuarios/change-password', {
+      console.log('🔐 Servicio: Enviando solicitud de cambio de contraseña...');
+      
+      const response = await apiClient.put('/usuarios/change-password', {
         contrasenaActual,
         contrasenaNueva
       });
-    } catch (error) {
-      console.error('Error al cambiar la contraseña:', error);
+
+      console.log('✅ Servicio: Contraseña cambiada exitosamente', response.data);
+      
+      // La API podría devolver { success: true, message: "..." } o similar
+      return response.data;
+    } catch (error: any) {
+      console.error('❌ Servicio: Error al cambiar la contraseña:', error);
+      console.error('❌ Error response:', error.response?.data);
       throw error;
     }
   }

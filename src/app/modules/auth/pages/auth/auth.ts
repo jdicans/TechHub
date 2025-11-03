@@ -10,7 +10,7 @@ import { AuthService } from '../../services/auth.service';
   styleUrls: ['./auth.css'],
   standalone: false
 })
-export class AuthComponent {
+export class Auth {
   mostrarLogin = true;
   loginForm: FormGroup;
   registerForm: FormGroup;

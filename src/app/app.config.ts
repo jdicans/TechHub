@@ -6,13 +6,13 @@ import localeEs from '@angular/common/locales/es';
 import { routes } from './app.routes';
 
 // Registrar el locale español
-registerLocaleData(localeEs, 'es-ES');
+registerLocaleData(localeEs, 'es');
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    { provide: LOCALE_ID, useValue: 'es-ES' }
+    { provide: LOCALE_ID, useValue: 'es' }
   ]
 };

@@ -23,11 +23,6 @@ const routes: Routes = [
           import('../eventos/eventos-module').then(m => m.EventosModule)
       },
       {
-        path: 'perfil',
-        loadChildren: () =>
-          import('../perfil/perfil-module').then(m => m.PerfilModule)
-      },
-      {
         path: 'blog',
         loadChildren: () =>
           import('../blog/blog-module').then(m => m.BlogModule)

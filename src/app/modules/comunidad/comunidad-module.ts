@@ -1,7 +1,16 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, Users, Search, UserPlus, UserCheck, Eye, MapPin, Mail, Briefcase } from 'lucide-angular';
+import { 
+  LucideAngularModule, 
+  Users, 
+  Mail, 
+  GraduationCap, 
+  Search, 
+  X, 
+  FilterX,
+  SearchX
+} from 'lucide-angular';
 import { ComunidadRoutingModule } from './comunidad-routing-module';
 import { Comunidad } from './pages/comunidad/comunidad';
 
@@ -13,7 +22,15 @@ import { Comunidad } from './pages/comunidad/comunidad';
     CommonModule,
     FormsModule,
     ComunidadRoutingModule,
-    LucideAngularModule.pick({ Users, Search, UserPlus, UserCheck, Eye, MapPin, Mail, Briefcase })
+    LucideAngularModule.pick({ 
+      Users, 
+      Mail, 
+      GraduationCap, 
+      Search, 
+      X, 
+      FilterX,
+      SearchX
+    })
   ]
 })
 export class ComunidadModule { }

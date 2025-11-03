@@ -7,6 +7,10 @@ const routes: Routes = [
     loadComponent: () => import('./pages/settings/settings').then(m => m.SettingsComponent)
   },
   {
+    path: 'perfil',
+    loadComponent: () => import('./pages/perfil/perfil').then(m => m.Perfil)
+  },
+  {
     path: 'notificaciones',
     loadComponent: () => import('./pages/notificaciones/notificaciones').then(m => m.NotificacionesComponent)
   },

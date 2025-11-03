@@ -3,11 +3,11 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { LucideAngularModule, LogIn, UserPlus, Mail, Lock, Eye, EyeOff, Zap, CheckCircle, User, CreditCard, Phone, GraduationCap } from 'lucide-angular';
 import { AuthRoutingModule } from './auth-routing.module';
-import { AuthComponent } from './pages/auth/auth';
+import { Auth } from './pages/auth/auth';
 
 @NgModule({
   declarations: [
-    AuthComponent
+    Auth
   ],
   imports: [
     CommonModule,
