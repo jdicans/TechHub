@@ -9,7 +9,8 @@ export class UsuarioService {
   // Listar todos los usuarios (requiere autenticación)
   async listarUsuarios(): Promise<UsuarioSinContrasena[]> {
     try {
-      return await apiClient.get('/usuarios');
+      const response = await apiClient.get('/usuarios');
+      return response.data;
     } catch (error) {
       console.error('Error al listar usuarios:', error);
       throw error;
@@ -19,9 +20,29 @@ export class UsuarioService {
   // Obtener usuario por ID (requiere autenticación)
   async obtenerUsuarioPorId(id: number): Promise<UsuarioSinContrasena> {
     try {
-      return await apiClient.get(`/usuarios/${id}`);
+      const response = await apiClient.get(`/usuarios/${id}`);
+      return response.data;
     } catch (error) {
       console.error('Error al obtener usuario:', error);
+      throw error;
+    }
+  }
+
+  // Buscar usuario por email (requiere autenticación)
+  async buscarUsuarioPorEmail(email: string): Promise<UsuarioSinContrasena | null> {
+    try {
+      const usuarios = await this.listarUsuarios();
+      console.log('Usuarios obtenidos:', usuarios);
+      
+      if (!Array.isArray(usuarios)) {
+        console.error('La respuesta no es un array:', usuarios);
+        return null;
+      }
+      
+      const usuario = usuarios.find(u => u.correo.toLowerCase() === email.toLowerCase());
+      return usuario || null;
+    } catch (error) {
+      console.error('Error al buscar usuario por email:', error);
       throw error;
     }
   }
@@ -29,7 +50,8 @@ export class UsuarioService {
   // Actualizar usuario (solo el propio usuario o admin)
   async actualizarUsuario(id: number, data: Partial<Usuario>): Promise<UsuarioSinContrasena> {
     try {
-      return await apiClient.put(`/usuarios/${id}`, data);
+      const response = await apiClient.put(`/usuarios/${id}`, data);
+      return response.data;
     } catch (error) {
       console.error('Error al actualizar usuario:', error);
       throw error;
@@ -39,7 +61,8 @@ export class UsuarioService {
   // Eliminar usuario (solo admin - rol 1)
   async eliminarUsuario(id: number): Promise<void> {
     try {
-      await apiClient.delete(`/usuarios/${id}`);
+      const response = await apiClient.delete(`/usuarios/${id}`);
+      return response.data;
     } catch (error) {
       console.error('Error al eliminar usuario:', error);
       throw error;

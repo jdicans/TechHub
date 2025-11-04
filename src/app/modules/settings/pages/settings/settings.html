@@ -27,17 +27,14 @@
         <!-- Badge de estado -->
         @if (opcion.titulo === 'Mi Perfil' || opcion.titulo === 'Cambiar Contraseña' || opcion.titulo === 'Términos y Condiciones') {
           <div class="badge-disponible">
-            <lucide-icon name="check-circle"></lucide-icon>
             <span>Funcional</span>
           </div>
         } @else if (opcion.ruta.startsWith('http')) {
           <div class="badge-externo">
-            <lucide-icon name="external-link"></lucide-icon>
             <span>Enlace externo</span>
           </div>
         } @else {
           <div class="badge-construccion">
-            <lucide-icon name="hammer"></lucide-icon>
             <span>En construcción</span>
           </div>
         }

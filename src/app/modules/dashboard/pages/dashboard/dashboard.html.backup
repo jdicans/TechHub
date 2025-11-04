@@ -1,0 +1,322 @@
+<div class="dashboard-container">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-content">
+      <div>
+        <h1>¡Bienvenido de nuevo!</h1>
+        <p>Aquí está tu resumen de actividad en TechHub</p>
+      </div>
+      <div class="header-date">
+        <lucide-icon name="calendar"></lucide-icon>
+        <span>{{ fechaActual | date: 'EEEE, d MMMM yyyy':'':'es' }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-grid">
+    <div class="stat-card posts">
+      <div class="stat-icon">
+        <lucide-icon name="book-open"></lucide-icon>
+      </div>
+      <div class="stat-content">
+        <p class="stat-label">Blog Posts</p>
+        <p class="stat-value">{{ stats.totalPosts }}</p>
+        <p class="stat-description">{{ stats.misPublicaciones }} publicaciones tuyas</p>
+      </div>
+    </div>
+
+    <div class="stat-card grupos">
+      <div class="stat-icon">
+        <lucide-icon name="users"></lucide-icon>
+      </div>
+      <div class="stat-content">
+        <p class="stat-label">Grupos de Estudio</p>
+        <p class="stat-value">{{ stats.totalGrupos }}</p>
+        <p class="stat-description">{{ stats.misGrupos }} grupos a los que perteneces</p>
+      </div>
+    </div>
+
+    <div class="stat-card comunidad">
+      <div class="stat-icon">
+        <lucide-icon name="users"></lucide-icon>
+      </div>
+      <div class="stat-content">
+        <p class="stat-label">Miembros Activos</p>
+        <p class="stat-value">{{ stats.totalMiembros }}</p>
+        <p class="stat-description">En la comunidad TechHub</p>
+      </div>
+    </div>
+
+    <div class="stat-card emprendimientos">
+      <div class="stat-icon">
+        <lucide-icon name="briefcase"></lucide-icon>
+      </div>
+      <div class="stat-content">
+        <p class="stat-label">Emprendimientos</p>
+        <p class="stat-value">{{ stats.totalEmprendimientos }}</p>
+        <p class="stat-description">{{ stats.misEmprendimientos }} emprendimientos tuyos</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Grid -->
+  <div class="content-grid">
+    <!-- Left Column -->
+    <div class="left-column">
+      <!-- Actividad Semanal -->
+      <div class="dashboard-card">
+        <div class="card-header">
+          <h2>
+            <lucide-icon name="activity"></lucide-icon>
+            Actividad Semanal
+          </h2>
+          <span class="badge">Últimos 7 días</span>
+        </div>
+        <div class="chart-container">
+          <div class="chart">
+            @for (item of actividadSemanal; track item.dia) {
+              <div class="chart-bar-wrapper">
+                <div class="chart-bar-container">
+                  <div class="chart-bar" [style.height.%]="getBarHeight(item.valor)">
+                    <span class="bar-value">{{ item.valor }}</span>
+                  </div>
+                </div>
+                <span class="chart-label">{{ item.dia }}</span>
+              </div>
+            }
+          </div>
+          <div class="chart-legend">
+            <span>Interacciones diarias</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Próximos Eventos -->
+      <div class="dashboard-card">
+        <div class="card-header">
+          <h2>
+            <lucide-icon name="calendar-days"></lucide-icon>
+            Próximos Eventos
+          </h2>
+          <a routerLink="/home/eventos" class="card-link">
+            Ver todos
+            <lucide-icon name="arrow-right"></lucide-icon>
+          </a>
+        </div>
+        <div class="eventos-list">
+          @for (evento of eventosProximos; track evento.id) {
+            <div class="evento-item">
+              <div class="evento-date">
+                <span class="date-day">{{ evento.fecha.getDate() }}</span>
+                <span class="date-month">{{ evento.fecha | date: 'MMM':'':'es' }}</span>
+              </div>
+              <div class="evento-info">
+                <h4>{{ evento.titulo }}</h4>
+                <div class="evento-meta">
+                  <span class="evento-categoria">
+                    <lucide-icon name="tag"></lucide-icon>
+                    {{ evento.categoria }}
+                  </span>
+                  <span class="evento-inscritos">
+                    <lucide-icon name="users"></lucide-icon>
+                    {{ evento.inscritos }} inscritos
+                  </span>
+                </div>
+              </div>
+              <div class="evento-countdown">
+                <span class="countdown-value">{{ getDiasHastaEvento(evento.fecha) }}</span>
+                <span class="countdown-label">días</span>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Posts Recientes -->
+      <div class="dashboard-card">
+        <div class="card-header">
+          <h2>
+            <lucide-icon name="newspaper"></lucide-icon>
+            Posts Recientes
+          </h2>
+          <a routerLink="/home/blog" class="card-link">
+            Ver todos
+            <lucide-icon name="arrow-right"></lucide-icon>
+          </a>
+        </div>
+        <div class="posts-list">
+          @for (post of postsRecientes; track post.id) {
+            <div class="post-item">
+              <div class="post-icon">
+                <lucide-icon name="file-text"></lucide-icon>
+              </div>
+              <div class="post-info">
+                <h4>{{ post.titulo }}</h4>
+                <p class="post-autor">Por {{ post.autor }} · {{ formatearFecha(post.fecha) }}</p>
+                <div class="post-stats">
+                  <span>
+                    <lucide-icon name="heart"></lucide-icon>
+                    {{ post.likes }}
+                  </span>
+                  <span>
+                    <lucide-icon name="message-circle"></lucide-icon>
+                    {{ post.comentarios }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column -->
+    <div class="right-column">
+      <!-- Quick Actions -->
+      <div class="dashboard-card quick-actions">
+        <div class="card-header">
+          <h2>
+            <lucide-icon name="zap"></lucide-icon>
+            Acciones Rápidas
+          </h2>
+        </div>
+        <div class="actions-grid">
+          <a routerLink="/home/eventos" class="action-button">
+            <lucide-icon name="calendar-plus"></lucide-icon>
+            <span>Crear Evento</span>
+          </a>
+          <a routerLink="/home/blog" class="action-button">
+            <lucide-icon name="pen-square"></lucide-icon>
+            <span>Nuevo Post</span>
+          </a>
+          <a routerLink="/home/emprendimientos" class="action-button">
+            <lucide-icon name="lightbulb"></lucide-icon>
+            <span>Nuevo Proyecto</span>
+          </a>
+          <a routerLink="/home/comunidad" class="action-button">
+            <lucide-icon name="user-plus"></lucide-icon>
+            <span>Conectar</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Progreso del Perfil -->
+      <div class="dashboard-card">
+        <div class="card-header">
+          <h2>
+            <lucide-icon name="user-circle"></lucide-icon>
+            Completa tu Perfil
+          </h2>
+        </div>
+        <div class="perfil-progress">
+          <div class="progress-circle">
+            <svg viewBox="0 0 36 36" class="circular-chart">
+              <path class="circle-bg"
+                d="M18 2.0845
+                  a 15.9155 15.9155 0 0 1 0 31.831
+                  a 15.9155 15.9155 0 0 1 0 -31.831"
+              />
+              <path class="circle"
+                [attr.stroke-dasharray]="progresoPerfilPorcentaje + ', 100'"
+                d="M18 2.0845
+                  a 15.9155 15.9155 0 0 1 0 31.831
+                  a 15.9155 15.9155 0 0 1 0 -31.831"
+              />
+              <text x="18" y="20.35" class="percentage">{{ progresoPerfilPorcentaje }}%</text>
+            </svg>
+          </div>
+          <div class="progress-info">
+            <p class="progress-title">¡Buen progreso!</p>
+            <p class="progress-description">Completa tu perfil para conectar mejor con la comunidad</p>
+          </div>
+          <div class="progress-tasks">
+            <div class="task-item completed">
+              <lucide-icon name="check-circle"></lucide-icon>
+              <span>Información básica</span>
+            </div>
+            <div class="task-item completed">
+              <lucide-icon name="check-circle"></lucide-icon>
+              <span>Skills añadidas</span>
+            </div>
+            <div class="task-item completed">
+              <lucide-icon name="check-circle"></lucide-icon>
+              <span>Primer proyecto creado</span>
+            </div>
+            <div class="task-item">
+              <lucide-icon name="circle"></lucide-icon>
+              <span>Foto de perfil</span>
+            </div>
+          </div>
+          <a routerLink="/home/perfil" class="btn-primary">
+            Completar Perfil
+            <lucide-icon name="arrow-right"></lucide-icon>
+          </a>
+        </div>
+      </div>
+
+      <!-- Actividad Reciente -->
+      <div class="dashboard-card">
+        <div class="card-header">
+          <h2>
+            <lucide-icon name="clock"></lucide-icon>
+            Actividad Reciente
+          </h2>
+        </div>
+        <div class="actividad-list">
+          @for (actividad of actividadReciente; track actividad.id) {
+            <div class="actividad-item">
+              <div class="actividad-icon" [class]="actividad.tipo">
+                <lucide-icon [name]="actividad.icono"></lucide-icon>
+              </div>
+              <div class="actividad-info">
+                <p class="actividad-descripcion">{{ actividad.descripcion }}</p>
+                <p class="actividad-fecha">{{ formatearFecha(actividad.fecha) }}</p>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Mis Estadísticas -->
+      <div class="dashboard-card">
+        <div class="card-header">
+          <h2>
+            <lucide-icon name="bar-chart"></lucide-icon>
+            Mis Estadísticas
+          </h2>
+        </div>
+        <div class="estadisticas-grid">
+          <div class="estadistica-item">
+            <lucide-icon name="book-open"></lucide-icon>
+            <div>
+              <p class="estadistica-value">{{ stats.misPublicaciones }}</p>
+              <p class="estadistica-label">Mis Publicaciones</p>
+            </div>
+          </div>
+          <div class="estadistica-item">
+            <lucide-icon name="users"></lucide-icon>
+            <div>
+              <p class="estadistica-value">{{ stats.misGrupos }}</p>
+              <p class="estadistica-label">Mis Grupos</p>
+            </div>
+          </div>
+          <div class="estadistica-item">
+            <lucide-icon name="briefcase"></lucide-icon>
+            <div>
+              <p class="estadistica-value">{{ stats.misEmprendimientos }}</p>
+              <p class="estadistica-label">Mis Emprendimientos</p>
+            </div>
+          </div>
+          <div class="estadistica-item">
+            <lucide-icon name="user-check"></lucide-icon>
+            <div>
+              <p class="estadistica-value">{{ stats.totalMiembros }}</p>
+              <p class="estadistica-label">Comunidad Total</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,334 +1,251 @@
 <div class="dashboard-container">
-  <!-- Header -->
-  <div class="header">
-    <div class="header-content">
-      <div>
-        <h1>¡Bienvenido de nuevo!</h1>
-        <p>Aquí está tu resumen de actividad en TechHub</p>
-      </div>
-      <div class="header-date">
-        <lucide-icon name="calendar"></lucide-icon>
-        <span>{{ fechaActual | date: 'EEEE, d MMMM yyyy':'':'es' }}</span>
-      </div>
+  <!-- Loading State -->
+  @if (cargando) {
+    <div class="loading-container">
+      <div class="loading-spinner"></div>
+      <p>Cargando dashboard...</p>
     </div>
-  </div>
+  }
 
-  <!-- Stats Cards -->
-  <div class="stats-grid">
-    <div class="stat-card eventos">
-      <div class="stat-icon">
-        <lucide-icon name="calendar"></lucide-icon>
+  @if (!cargando) {
+    <!-- Header Section -->
+    <header class="header">
+      <div class="header-content">
+        <h1 class="title">Dashboard</h1>
+        <p class="subtitle">¡Bienvenido {{ usuarioActual?.nombre || 'de nuevo' }}! Aquí tienes un resumen de tu actividad en TechHub</p>
       </div>
-      <div class="stat-content">
-        <p class="stat-label">Eventos Disponibles</p>
-        <p class="stat-value">{{ stats.totalEventos }}</p>
-        <p class="stat-change positive">
-          <lucide-icon name="trending-up"></lucide-icon>
-          +3 este mes
-        </p>
-      </div>
-    </div>
+    </header>
 
-    <div class="stat-card posts">
-      <div class="stat-icon">
-        <lucide-icon name="file-text"></lucide-icon>
-      </div>
-      <div class="stat-content">
-        <p class="stat-label">Blog Posts</p>
-        <p class="stat-value">{{ stats.totalPosts }}</p>
-        <p class="stat-change positive">
-          <lucide-icon name="trending-up"></lucide-icon>
-          +5 esta semana
-        </p>
-      </div>
-    </div>
-
-    <div class="stat-card comunidad">
-      <div class="stat-icon">
-        <lucide-icon name="users"></lucide-icon>
-      </div>
-      <div class="stat-content">
-        <p class="stat-label">Miembros Activos</p>
-        <p class="stat-value">{{ stats.totalMiembros }}</p>
-        <p class="stat-change positive">
-          <lucide-icon name="trending-up"></lucide-icon>
-          +12 nuevos
-        </p>
-      </div>
-    </div>
-
-    <div class="stat-card proyectos">
-      <div class="stat-icon">
-        <lucide-icon name="lightbulb"></lucide-icon>
-      </div>
-      <div class="stat-content">
-        <p class="stat-label">Tus Proyectos</p>
-        <p class="stat-value">{{ stats.proyectos }}</p>
-        <p class="stat-change neutral">
-          <lucide-icon name="minus"></lucide-icon>
-          Sin cambios
-        </p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Main Content Grid -->
-  <div class="content-grid">
-    <!-- Left Column -->
-    <div class="left-column">
-      <!-- Actividad Semanal -->
-      <div class="dashboard-card">
-        <div class="card-header">
-          <h2>
-            <lucide-icon name="activity"></lucide-icon>
-            Actividad Semanal
-          </h2>
-          <span class="badge">Últimos 7 días</span>
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+      <!-- Publicaciones -->
+      <a [routerLink]="['/blog']" class="stat-card stat-card-publicaciones">
+        <div class="stat-icon">
+          <lucide-icon name="book-open"></lucide-icon>
         </div>
-        <div class="chart-container">
-          <div class="chart">
-            @for (item of actividadSemanal; track item.dia) {
-              <div class="chart-bar-wrapper">
-                <div class="chart-bar-container">
-                  <div class="chart-bar" [style.height.%]="getBarHeight(item.valor)">
-                    <span class="bar-value">{{ item.valor }}</span>
-                  </div>
-                </div>
-                <span class="chart-label">{{ item.dia }}</span>
-              </div>
-            }
-          </div>
-          <div class="chart-legend">
-            <span>Interacciones diarias</span>
-          </div>
+        <div class="stat-info">
+          <h3>{{ stats.totalPublicaciones }}</h3>
+          <p class="stat-label">Publicaciones</p>
+          <span class="stat-detail">{{ stats.misPublicaciones }} tuyas</span>
         </div>
-      </div>
+      </a>
 
-      <!-- Próximos Eventos -->
-      <div class="dashboard-card">
-        <div class="card-header">
+      <!-- Grupos -->
+      <a [routerLink]="['/grupos']" class="stat-card stat-card-grupos">
+        <div class="stat-icon">
+          <lucide-icon name="users"></lucide-icon>
+        </div>
+        <div class="stat-info">
+          <h3>{{ stats.totalGrupos }}</h3>
+          <p class="stat-label">Grupos de Estudio</p>
+          <span class="stat-detail">{{ stats.misGrupos }} tuyos</span>
+        </div>
+      </a>
+
+      <!-- Eventos -->
+      <a [routerLink]="['/eventos']" class="stat-card stat-card-eventos">
+        <div class="stat-icon">
+          <lucide-icon name="calendar"></lucide-icon>
+        </div>
+        <div class="stat-info">
+          <h3>{{ stats.totalEventos }}</h3>
+          <p class="stat-label">Eventos</p>
+          <span class="stat-detail">{{ stats.eventosInscritos }} inscritos</span>
+        </div>
+      </a>
+
+      <!-- Emprendimientos -->
+      <a [routerLink]="['/emprendimientos']" class="stat-card stat-card-emprendimientos">
+        <div class="stat-icon">
+          <lucide-icon name="briefcase"></lucide-icon>
+        </div>
+        <div class="stat-info">
+          <h3>{{ stats.totalEmprendimientos }}</h3>
+          <p class="stat-label">Emprendimientos</p>
+          <span class="stat-detail">{{ stats.misEmprendimientos }} tuyos</span>
+        </div>
+      </a>
+    </div>
+
+    <!-- Content Grid -->
+    <div class="content-grid">
+      <!-- Column 1: Eventos Próximos -->
+      <div class="content-section">
+        <div class="section-header">
           <h2>
-            <lucide-icon name="calendar-days"></lucide-icon>
+            <lucide-icon name="calendar"></lucide-icon>
             Próximos Eventos
           </h2>
-          <a routerLink="/home/eventos" class="card-link">
-            Ver todos
-            <lucide-icon name="arrow-right"></lucide-icon>
-          </a>
+          <a [routerLink]="['/eventos']" class="btn-link">Ver todos</a>
         </div>
-        <div class="eventos-list">
-          @for (evento of eventosProximos; track evento.id) {
-            <div class="evento-item">
-              <div class="evento-date">
-                <span class="date-day">{{ evento.fecha.getDate() }}</span>
-                <span class="date-month">{{ evento.fecha | date: 'MMM':'':'es' }}</span>
-              </div>
-              <div class="evento-info">
-                <h4>{{ evento.titulo }}</h4>
-                <div class="evento-meta">
-                  <span class="evento-categoria">
-                    <lucide-icon name="tag"></lucide-icon>
-                    {{ evento.categoria }}
+
+        @if (eventosProximos.length > 0) {
+          <div class="eventos-list">
+            @for (evento of eventosProximos; track evento.id_evento) {
+              <a [routerLink]="['/eventos']" class="evento-card">
+                <div class="evento-header">
+                  <h3>{{ evento.nombre }}</h3>
+                  <span class="evento-dias">
+                    @if (getDiasHastaEvento(evento.fecha_evento) === 0) {
+                      Hoy
+                    } @else if (getDiasHastaEvento(evento.fecha_evento) === 1) {
+                      Mañana
+                    } @else {
+                      {{ getDiasHastaEvento(evento.fecha_evento) }} días
+                    }
                   </span>
-                  <span class="evento-inscritos">
+                </div>
+                <p class="evento-fecha">
+                  <lucide-icon name="calendar"></lucide-icon>
+                  {{ formatearFechaCompleta(evento.fecha_evento) }}
+                </p>
+                @if (evento.total_inscritos) {
+                  <p class="evento-inscritos">
                     <lucide-icon name="users"></lucide-icon>
-                    {{ evento.inscritos }} inscritos
-                  </span>
-                </div>
-              </div>
-              <div class="evento-countdown">
-                <span class="countdown-value">{{ getDiasHastaEvento(evento.fecha) }}</span>
-                <span class="countdown-label">días</span>
-              </div>
-            </div>
-          }
-        </div>
+                    {{ evento.total_inscritos }} inscritos
+                  </p>
+                }
+              </a>
+            }
+          </div>
+        } @else {
+          <div class="empty-state">
+            <lucide-icon name="calendar"></lucide-icon>
+            <p>No hay eventos próximos</p>
+            <a [routerLink]="['/eventos']" class="btn-primary">Explorar eventos</a>
+          </div>
+        }
       </div>
 
-      <!-- Posts Recientes -->
-      <div class="dashboard-card">
-        <div class="card-header">
+      <!-- Column 2: Publicaciones Recientes -->
+      <div class="content-section">
+        <div class="section-header">
           <h2>
-            <lucide-icon name="newspaper"></lucide-icon>
-            Posts Recientes
+            <lucide-icon name="book-open"></lucide-icon>
+            Publicaciones Recientes
           </h2>
-          <a routerLink="/home/blog" class="card-link">
-            Ver todos
-            <lucide-icon name="arrow-right"></lucide-icon>
-          </a>
+          <a [routerLink]="['/blog']" class="btn-link">Ver todas</a>
         </div>
-        <div class="posts-list">
-          @for (post of postsRecientes; track post.id) {
-            <div class="post-item">
-              <div class="post-icon">
-                <lucide-icon name="file-text"></lucide-icon>
-              </div>
-              <div class="post-info">
-                <h4>{{ post.titulo }}</h4>
-                <p class="post-autor">Por {{ post.autor }} · {{ formatearFecha(post.fecha) }}</p>
-                <div class="post-stats">
-                  <span>
-                    <lucide-icon name="heart"></lucide-icon>
-                    {{ post.likes }}
+
+        @if (publicacionesRecientes.length > 0) {
+          <div class="publicaciones-list">
+            @for (post of publicacionesRecientes; track post.id_publicacion) {
+              <a [routerLink]="['/blog']" class="publicacion-card">
+                <h3>{{ getTruncatedText(post.titulo, 50) }}</h3>
+                <p class="publicacion-contenido">
+                  {{ getTruncatedText(post.contenido, 100) }}
+                </p>
+                <div class="publicacion-meta">
+                  <span class="publicacion-autor">
+                    <lucide-icon name="user"></lucide-icon>
+                    {{ post.usuario?.nombre || 'Usuario' }} {{ post.usuario?.apellido || '' }}
                   </span>
-                  <span>
-                    <lucide-icon name="message-circle"></lucide-icon>
-                    {{ post.comentarios }}
-                  </span>
+                  <span class="publicacion-fecha">{{ formatearFecha(post.fecha_creacion) }}</span>
                 </div>
-              </div>
-            </div>
-          }
-        </div>
+              </a>
+            }
+          </div>
+        } @else {
+          <div class="empty-state">
+            <lucide-icon name="book-open"></lucide-icon>
+            <p>No hay publicaciones recientes</p>
+            <a [routerLink]="['/blog']" class="btn-primary">Crear publicación</a>
+          </div>
+        }
       </div>
     </div>
 
-    <!-- Right Column -->
-    <div class="right-column">
-      <!-- Quick Actions -->
-      <div class="dashboard-card quick-actions">
-        <div class="card-header">
+    <!-- Second Row -->
+    <div class="content-grid">
+      <!-- Grupos Destacados -->
+      <div class="content-section">
+        <div class="section-header">
           <h2>
-            <lucide-icon name="zap"></lucide-icon>
-            Acciones Rápidas
+            <lucide-icon name="users"></lucide-icon>
+            Grupos de Estudio
           </h2>
+          <a [routerLink]="['/grupos']" class="btn-link">Ver todos</a>
         </div>
-        <div class="actions-grid">
-          <a routerLink="/home/eventos" class="action-button">
-            <lucide-icon name="calendar-plus"></lucide-icon>
-            <span>Crear Evento</span>
-          </a>
-          <a routerLink="/home/blog" class="action-button">
-            <lucide-icon name="pen-square"></lucide-icon>
-            <span>Nuevo Post</span>
-          </a>
-          <a routerLink="/home/emprendimientos" class="action-button">
-            <lucide-icon name="lightbulb"></lucide-icon>
-            <span>Nuevo Proyecto</span>
-          </a>
-          <a routerLink="/home/comunidad" class="action-button">
-            <lucide-icon name="user-plus"></lucide-icon>
-            <span>Conectar</span>
-          </a>
-        </div>
+
+        @if (gruposDestacados.length > 0) {
+          <div class="grupos-list">
+            @for (grupo of gruposDestacados; track grupo.id_grupo) {
+              <a [routerLink]="['/grupos']" class="grupo-card">
+                <div class="grupo-header">
+                  <h3>{{ grupo.nombre }}</h3>
+                  @if (grupo.privado) {
+                    <span class="badge badge-privado">
+                      <lucide-icon name="lock"></lucide-icon>
+                      Privado
+                    </span>
+                  } @else {
+                    <span class="badge badge-publico">
+                      <lucide-icon name="globe"></lucide-icon>
+                      Público
+                    </span>
+                  }
+                </div>
+                <p class="grupo-descripcion">{{ getTruncatedText(grupo.descripcion, 80) }}</p>
+                <div class="grupo-meta">
+                  <span>
+                    <lucide-icon name="users"></lucide-icon>
+                    {{ grupo.miembros?.length || 0 }} miembros
+                  </span>
+                  <span>{{ formatearFecha(grupo.fecha_creacion) }}</span>
+                </div>
+              </a>
+            }
+          </div>
+        } @else {
+          <div class="empty-state">
+            <lucide-icon name="users"></lucide-icon>
+            <p>No hay grupos disponibles</p>
+            <a [routerLink]="['/grupos']" class="btn-primary">Crear grupo</a>
+          </div>
+        }
       </div>
 
-      <!-- Progreso del Perfil -->
-      <div class="dashboard-card">
-        <div class="card-header">
+      <!-- Emprendimientos Recientes -->
+      <div class="content-section">
+        <div class="section-header">
           <h2>
-            <lucide-icon name="user-circle"></lucide-icon>
-            Completa tu Perfil
+            <lucide-icon name="briefcase"></lucide-icon>
+            Emprendimientos
           </h2>
+          <a [routerLink]="['/emprendimientos']" class="btn-link">Ver todos</a>
         </div>
-        <div class="perfil-progress">
-          <div class="progress-circle">
-            <svg viewBox="0 0 36 36" class="circular-chart">
-              <path class="circle-bg"
-                d="M18 2.0845
-                  a 15.9155 15.9155 0 0 1 0 31.831
-                  a 15.9155 15.9155 0 0 1 0 -31.831"
-              />
-              <path class="circle"
-                [attr.stroke-dasharray]="progresoPerfilPorcentaje + ', 100'"
-                d="M18 2.0845
-                  a 15.9155 15.9155 0 0 1 0 31.831
-                  a 15.9155 15.9155 0 0 1 0 -31.831"
-              />
-              <text x="18" y="20.35" class="percentage">{{ progresoPerfilPorcentaje }}%</text>
-            </svg>
-          </div>
-          <div class="progress-info">
-            <p class="progress-title">¡Buen progreso!</p>
-            <p class="progress-description">Completa tu perfil para conectar mejor con la comunidad</p>
-          </div>
-          <div class="progress-tasks">
-            <div class="task-item completed">
-              <lucide-icon name="check-circle"></lucide-icon>
-              <span>Información básica</span>
-            </div>
-            <div class="task-item completed">
-              <lucide-icon name="check-circle"></lucide-icon>
-              <span>Skills añadidas</span>
-            </div>
-            <div class="task-item completed">
-              <lucide-icon name="check-circle"></lucide-icon>
-              <span>Primer proyecto creado</span>
-            </div>
-            <div class="task-item">
-              <lucide-icon name="circle"></lucide-icon>
-              <span>Foto de perfil</span>
-            </div>
-          </div>
-          <a routerLink="/home/perfil" class="btn-primary">
-            Completar Perfil
-            <lucide-icon name="arrow-right"></lucide-icon>
-          </a>
-        </div>
-      </div>
 
-      <!-- Actividad Reciente -->
-      <div class="dashboard-card">
-        <div class="card-header">
-          <h2>
-            <lucide-icon name="clock"></lucide-icon>
-            Actividad Reciente
-          </h2>
-        </div>
-        <div class="actividad-list">
-          @for (actividad of actividadReciente; track actividad.id) {
-            <div class="actividad-item">
-              <div class="actividad-icon" [class]="actividad.tipo">
-                <lucide-icon [name]="actividad.icono"></lucide-icon>
-              </div>
-              <div class="actividad-info">
-                <p class="actividad-descripcion">{{ actividad.descripcion }}</p>
-                <p class="actividad-fecha">{{ formatearFecha(actividad.fecha) }}</p>
-              </div>
-            </div>
-          }
-        </div>
-      </div>
-
-      <!-- Mis Estadísticas -->
-      <div class="dashboard-card">
-        <div class="card-header">
-          <h2>
-            <lucide-icon name="bar-chart"></lucide-icon>
-            Mis Estadísticas
-          </h2>
-        </div>
-        <div class="estadisticas-grid">
-          <div class="estadistica-item">
-            <lucide-icon name="calendar-check"></lucide-icon>
-            <div>
-              <p class="estadistica-value">{{ stats.eventosInscritos }}</p>
-              <p class="estadistica-label">Eventos Inscritos</p>
-            </div>
+        @if (emprendimientosRecientes.length > 0) {
+          <div class="emprendimientos-list">
+            @for (emprendimiento of emprendimientosRecientes; track emprendimiento.id_evento) {
+              <a [routerLink]="['/emprendimientos']" class="emprendimiento-card">
+                <h3>{{ emprendimiento.nombre }}</h3>
+                <p class="emprendimiento-descripcion">
+                  {{ getTruncatedText(emprendimiento.descripcion, 100) }}
+                </p>
+                <div class="emprendimiento-meta">
+                  <span>
+                    <lucide-icon name="calendar"></lucide-icon>
+                    {{ formatearFecha(emprendimiento.fecha_evento) }}
+                  </span>
+                  @if (emprendimiento.total_inscritos) {
+                    <span>
+                      <lucide-icon name="users"></lucide-icon>
+                      {{ emprendimiento.total_inscritos }} interesados
+                    </span>
+                  }
+                </div>
+              </a>
+            }
           </div>
-          <div class="estadistica-item">
-            <lucide-icon name="user-check"></lucide-icon>
-            <div>
-              <p class="estadistica-value">{{ stats.conexiones }}</p>
-              <p class="estadistica-label">Conexiones</p>
-            </div>
+        } @else {
+          <div class="empty-state">
+            <lucide-icon name="briefcase"></lucide-icon>
+            <p>No hay emprendimientos disponibles</p>
+            <a [routerLink]="['/emprendimientos']" class="btn-primary">Crear emprendimiento</a>
           </div>
-          <div class="estadistica-item">
-            <lucide-icon name="lightbulb"></lucide-icon>
-            <div>
-              <p class="estadistica-value">{{ stats.proyectos }}</p>
-              <p class="estadistica-label">Proyectos</p>
-            </div>
-          </div>
-          <div class="estadistica-item">
-            <lucide-icon name="file-text"></lucide-icon>
-            <div>
-              <p class="estadistica-value">{{ stats.totalPosts }}</p>
-              <p class="estadistica-label">Posts Publicados</p>
-            </div>
-          </div>
-        </div>
+        }
       </div>
     </div>
-  </div>
+  }
 </div>

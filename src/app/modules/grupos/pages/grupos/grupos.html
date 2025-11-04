@@ -1,0 +1,378 @@
+<div class="grupos-container">
+  <!-- Header con gradiente azul -->
+  <header class="grupos-header">
+    <div class="header-content">
+      <div class="header-title-section">
+        <lucide-icon name="users" class="header-icon"></lucide-icon>
+        <div>
+          <h1>Grupos de Estudio</h1>
+          <p class="subtitle">Conecta, colabora y aprende en comunidad</p>
+        </div>
+      </div>
+      <button class="btn-crear" (click)="toggleFormulario()" *ngIf="usuarioActual">
+        <lucide-icon name="plus"></lucide-icon>
+        <span>Crear Grupo</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Filtros -->
+  <div class="filtros-container">
+    <div class="filtro-busqueda">
+      <lucide-icon name="search"></lucide-icon>
+      <input 
+        type="text" 
+        [(ngModel)]="busqueda" 
+        (input)="onBusquedaChange(busqueda)"
+        placeholder="Buscar grupos..."
+        class="input-busqueda"
+      />
+    </div>
+    
+    <button 
+      class="btn-filtro" 
+      [class.active]="soloMisGrupos"
+      (click)="toggleSoloMisGrupos()"
+      *ngIf="usuarioActual"
+    >
+      <lucide-icon name="user-check"></lucide-icon>
+      <span>Mis Grupos</span>
+    </button>
+  </div>
+
+  <!-- Formulario de crear/editar grupo -->
+  @if (mostrarFormulario) {
+    <div class="modal-form-backdrop" (click)="toggleFormulario()">
+      <div class="modal-form-content" (click)="$event.stopPropagation()">
+        <div class="modal-form-header">
+          <h2>
+            <lucide-icon name="users"></lucide-icon>
+            {{ modoEdicion ? 'Editar Grupo' : 'Nuevo Grupo' }}
+          </h2>
+          <button class="btn-close-form" (click)="toggleFormulario()">
+            <lucide-icon name="x"></lucide-icon>
+          </button>
+        </div>
+        
+        <form (submit)="$event.preventDefault(); guardarGrupo()">
+          <div class="form-group">
+            <label>Nombre del grupo *</label>
+            <input 
+              type="text" 
+              [(ngModel)]="nuevoGrupo.nombre" 
+              name="nombre" 
+              placeholder="Ej: Algoritmos y Estructuras de Datos" 
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Descripción</label>
+            <textarea 
+              [(ngModel)]="nuevoGrupo.descripcion" 
+              name="descripcion" 
+              placeholder="Describe el propósito del grupo..."
+              rows="4"
+            ></textarea>
+          </div>
+          
+          <div class="form-actions">
+            <button type="submit" class="btn-submit" [disabled]="cargando">
+              <lucide-icon [name]="cargando ? 'loader' : 'check'"></lucide-icon>
+              {{ cargando ? (modoEdicion ? 'Actualizando...' : 'Creando...') : (modoEdicion ? 'Actualizar' : 'Crear Grupo') }}
+            </button>
+            <button type="button" class="btn-cancel" (click)="toggleFormulario()">
+              <lucide-icon name="x"></lucide-icon>
+              Cancelar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  <!-- Grid de grupos -->
+  <div class="grupos-grid">
+    @if (cargando) {
+      <div class="loading-state">
+        <lucide-icon name="loader" class="spinner"></lucide-icon>
+        <p>Cargando grupos...</p>
+      </div>
+    } @else if (gruposFiltrados.length === 0 && grupos.length === 0) {
+      <div class="empty-state">
+        <lucide-icon name="users-round"></lucide-icon>
+        <h3>No hay grupos disponibles</h3>
+        <p>{{ usuarioActual ? 'Sé el primero en crear un grupo de estudio' : 'Inicia sesión para crear y unirte a grupos' }}</p>
+        @if (usuarioActual) {
+          <button class="btn-crear" (click)="toggleFormulario()">
+            <lucide-icon name="plus"></lucide-icon>
+            <span>Crear Primer Grupo</span>
+          </button>
+        }
+      </div>
+    } @else if (gruposFiltrados.length === 0) {
+      <div class="empty-state">
+        <lucide-icon name="search-x"></lucide-icon>
+        <h3>No se encontraron resultados</h3>
+        <p>No hay grupos que coincidan con tu búsqueda</p>
+      </div>
+    } @else {
+      @for (grupo of gruposFiltrados; track grupo.id_grupo) {
+        <article class="grupo-card" (click)="verDetalle(grupo)">
+          <div class="grupo-header">
+            <div class="grupo-icon">
+              <lucide-icon name="users"></lucide-icon>
+            </div>
+            <div class="grupo-badges">
+              @if (esMiembro(grupo)) {
+                <span class="badge-miembro-activo">
+                  <lucide-icon name="check-circle"></lucide-icon>
+                  Miembro
+                </span>
+              }
+              @if (esAdministrador(grupo)) {
+                <span class="badge-admin-small">
+                  <lucide-icon name="crown"></lucide-icon>
+                  Admin
+                </span>
+              }
+            </div>
+          </div>
+
+          <h3>{{ grupo.nombre }}</h3>
+          
+          @if (grupo.descripcion) {
+            <p class="grupo-descripcion">{{ grupo.descripcion }}</p>
+          }
+
+          <div class="grupo-footer">
+            <div class="grupo-stats">
+              <div class="stat">
+                <lucide-icon name="users"></lucide-icon>
+                <span>{{ grupo.total_miembros }} {{ grupo.total_miembros === 1 ? 'miembro' : 'miembros' }}</span>
+              </div>
+              <div class="stat">
+                <lucide-icon name="calendar"></lucide-icon>
+                <span>{{ formatearFecha(grupo.fecha_creacion) }}</span>
+              </div>
+            </div>
+          </div>
+        </article>
+      }
+    }
+  </div>
+
+  <!-- Modal de detalle del grupo -->
+  @if (grupoSeleccionado) {
+    <div class="modal-backdrop" (click)="cerrarDetalle()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div class="modal-title-section">
+            <lucide-icon name="users" class="modal-icon"></lucide-icon>
+            <div>
+              <h2>{{ grupoSeleccionado.nombre }}</h2>
+              @if (esMiembro(grupoSeleccionado)) {
+                <span [class]="'badge-rol ' + getRolBadgeClass(getMiRol(grupoSeleccionado))">
+                  {{ getMiRol(grupoSeleccionado) }}
+                </span>
+              }
+            </div>
+          </div>
+          <button class="btn-close" (click)="cerrarDetalle()">
+            <lucide-icon name="x"></lucide-icon>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <!-- Descripción -->
+          @if (grupoSeleccionado.descripcion) {
+            <div class="grupo-detalle-descripcion">
+              <h3>
+                <lucide-icon name="info"></lucide-icon>
+                Descripción
+              </h3>
+              <p>{{ grupoSeleccionado.descripcion }}</p>
+            </div>
+          }
+
+          <!-- Estadísticas -->
+          <div class="grupo-stats-detalle">
+            <div class="stat-card">
+              <lucide-icon name="users"></lucide-icon>
+              <div>
+                <span class="stat-number">{{ grupoSeleccionado.total_miembros }}</span>
+                <span class="stat-label">{{ grupoSeleccionado.total_miembros === 1 ? 'Miembro' : 'Miembros' }}</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <lucide-icon name="calendar"></lucide-icon>
+              <div>
+                <span class="stat-number">{{ formatearFecha(grupoSeleccionado.fecha_creacion) }}</span>
+                <span class="stat-label">Creado</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Miembros -->
+          <div class="miembros-section">
+            <div class="miembros-header">
+              <h3>
+                <lucide-icon name="users-round"></lucide-icon>
+                Miembros ({{ miembros.length }})
+              </h3>
+              @if (esAdministrador(grupoSeleccionado)) {
+                <button class="btn-agregar-miembro" (click)="toggleModalMiembros()">
+                  <lucide-icon name="user-check"></lucide-icon>
+                  Agregar Miembro
+                </button>
+              }
+            </div>
+
+            @if (miembros.length > 0) {
+              <div class="miembros-lista">
+                @for (miembro of miembros; track miembro.id_usuario) {
+                  <div class="miembro-item">
+                    <div class="miembro-avatar">
+                      @if (miembro.foto_perfil) {
+                        <img [src]="miembro.foto_perfil" [alt]="miembro.nombre" />
+                      } @else {
+                        <lucide-icon name="user"></lucide-icon>
+                      }
+                    </div>
+                    <div class="miembro-info">
+                      <span class="miembro-nombre">{{ miembro.nombre }} {{ miembro.apellido }}</span>
+                      <span [class]="'miembro-rol ' + getRolBadgeClass(miembro.rol_grupo)">
+                        @if (miembro.rol_grupo === 'administrador') {
+                          <lucide-icon name="crown"></lucide-icon>
+                        } @else if (miembro.rol_grupo === 'moderador') {
+                          <lucide-icon name="shield"></lucide-icon>
+                        } @else {
+                          <lucide-icon name="user"></lucide-icon>
+                        }
+                        {{ miembro.rol_grupo }}
+                      </span>
+                    </div>
+
+                    @if (esAdministrador(grupoSeleccionado) && miembro.id_usuario !== usuarioActual?.id_usuario) {
+                      <div class="miembro-acciones">
+                        @if (miembro.rol_grupo !== 'administrador') {
+                          <button 
+                            class="btn-icon-small" 
+                            (click)="cambiarRolMiembro(grupoSeleccionado.id_grupo, miembro.id_usuario, 'administrador')"
+                            title="Promover a administrador"
+                          >
+                            <lucide-icon name="crown"></lucide-icon>
+                          </button>
+                        }
+                        @if (miembro.rol_grupo !== 'moderador') {
+                          <button 
+                            class="btn-icon-small" 
+                            (click)="cambiarRolMiembro(grupoSeleccionado.id_grupo, miembro.id_usuario, 'moderador')"
+                            title="Promover a moderador"
+                          >
+                            <lucide-icon name="shield"></lucide-icon>
+                          </button>
+                        }
+                        <button 
+                          class="btn-icon-small btn-danger-icon" 
+                          (click)="removerMiembro(grupoSeleccionado.id_grupo, miembro.id_usuario, miembro.nombre + ' ' + miembro.apellido)"
+                          title="Remover del grupo"
+                        >
+                          <lucide-icon name="user-minus"></lucide-icon>
+                        </button>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            } @else {
+              <p class="no-miembros">No hay miembros en este grupo</p>
+            }
+          </div>
+
+          <!-- Acciones -->
+          <div class="grupo-acciones">
+            @if (esAdministrador(grupoSeleccionado)) {
+              <button class="btn-editar" (click)="editarGrupo(grupoSeleccionado)">
+                <lucide-icon name="edit"></lucide-icon>
+                Editar Grupo
+              </button>
+              <button class="btn-eliminar" (click)="eliminarGrupo(grupoSeleccionado.id_grupo)">
+                <lucide-icon name="trash-2"></lucide-icon>
+                Eliminar Grupo
+              </button>
+            } @else if (esMiembro(grupoSeleccionado)) {
+              <button class="btn-salir" (click)="salirDelGrupo(grupoSeleccionado.id_grupo)">
+                <lucide-icon name="log-out"></lucide-icon>
+                Salir del Grupo
+              </button>
+            } @else {
+              <button class="btn-unirse" (click)="unirseAlGrupo(grupoSeleccionado.id_grupo)">
+                <lucide-icon name="user-check"></lucide-icon>
+                Unirse al Grupo
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Modal agregar miembro -->
+  @if (mostrarModalMiembros && grupoSeleccionado) {
+    <div class="modal-form-backdrop" (click)="toggleModalMiembros()">
+      <div class="modal-form-content" (click)="$event.stopPropagation()">
+        <div class="modal-form-header">
+          <h2>
+            <lucide-icon name="user-check"></lucide-icon>
+            Agregar Miembro
+          </h2>
+          <button class="btn-close-form" (click)="toggleModalMiembros()">
+            <lucide-icon name="x"></lucide-icon>
+          </button>
+        </div>
+
+        <form (ngSubmit)="agregarMiembro()">
+          <div class="form-group">
+            <label for="email-miembro">Correo electrónico del usuario</label>
+            <input
+              type="email"
+              id="email-miembro"
+              [(ngModel)]="emailNuevoMiembro"
+              name="emailMiembro"
+              placeholder="ejemplo@correo.com"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="rol-miembro">Rol en el grupo</label>
+            <select
+              id="rol-miembro"
+              [(ngModel)]="rolNuevoMiembro"
+              name="rolMiembro"
+            >
+              <option value="miembro">Miembro</option>
+              <option value="moderador">Moderador</option>
+              <option value="administrador">Administrador</option>
+            </select>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn-cancelar" (click)="toggleModalMiembros()">
+              Cancelar
+            </button>
+            <button type="submit" class="btn-guardar" [disabled]="cargando">
+              @if (cargando) {
+                <lucide-icon name="loader" class="loading-icon"></lucide-icon>
+              } @else {
+                <lucide-icon name="check"></lucide-icon>
+              }
+              Agregar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+</div>

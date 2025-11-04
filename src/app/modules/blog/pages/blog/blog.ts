@@ -45,6 +45,10 @@ export class Blog implements OnInit {
     etiquetas: []
   };
   
+  // Estado de edición de publicación
+  publicacionEditando: number | null = null;
+  modoEdicion = false;
+  
   // Estado de edición de comentario
   comentarioEditando: number | null = null;
   comentarioEditandoTexto = '';
@@ -212,14 +216,36 @@ export class Blog implements OnInit {
   toggleFormulario(): void {
     this.mostrarFormulario = !this.mostrarFormulario;
     if (!this.mostrarFormulario) {
-      this.nuevoPost = {
-        titulo: '',
-        contenido: '',
-        id_categoria: 0,
-        tipo: 'articulo',
-        etiquetas: []
-      };
+      this.resetearFormulario();
     }
+  }
+
+  resetearFormulario(): void {
+    this.nuevoPost = {
+      titulo: '',
+      contenido: '',
+      id_categoria: 0,
+      tipo: 'articulo',
+      etiquetas: []
+    };
+    this.modoEdicion = false;
+    this.publicacionEditando = null;
+  }
+
+  editarPublicacion(publicacion: Publicacion): void {
+    this.modoEdicion = true;
+    this.publicacionEditando = publicacion.id_publicacion;
+    this.nuevoPost = {
+      titulo: publicacion.titulo,
+      contenido: publicacion.contenido,
+      id_categoria: publicacion.id_categoria,
+      tipo: publicacion.tipo,
+      etiquetas: publicacion.etiquetas?.map(e => e.id_etiqueta) || []
+    };
+    this.mostrarFormulario = true;
+    
+    // Cerrar el modal de detalle si está abierto
+    this.cerrarPublicacion();
   }
 
   crearPublicacion(): void {
@@ -241,6 +267,39 @@ export class Blog implements OnInit {
         this.cargando = false;
       }
     });
+  }
+
+  actualizarPublicacion(): void {
+    if (!this.nuevoPost.titulo || !this.nuevoPost.contenido || !this.nuevoPost.id_categoria) {
+      this.alertService.warning('Campos incompletos', 'Por favor completa título, contenido y categoría');
+      return;
+    }
+
+    if (!this.publicacionEditando) {
+      return;
+    }
+
+    this.cargando = true;
+    this.publicacionesService.updatePublicacion(this.publicacionEditando, this.nuevoPost).subscribe({
+      next: (publicacion) => {
+        this.alertService.success('¡Publicación actualizada!', 'Los cambios se han guardado exitosamente');
+        this.toggleFormulario();
+        this.cargarPublicaciones();
+      },
+      error: (error) => {
+        console.error('Error al actualizar publicación:', error);
+        this.alertService.error('Error', 'No se pudo actualizar la publicación');
+        this.cargando = false;
+      }
+    });
+  }
+
+  guardarPublicacion(): void {
+    if (this.modoEdicion) {
+      this.actualizarPublicacion();
+    } else {
+      this.crearPublicacion();
+    }
   }
 
   verPublicacion(publicacion: Publicacion): void {

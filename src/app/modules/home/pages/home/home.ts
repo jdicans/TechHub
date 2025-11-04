@@ -36,6 +36,12 @@ export class Home {
       description: 'Proyectos e ideas'
     },
     {
+      label: 'Grupos de Estudio',
+      icon: 'users-round',
+      route: 'grupos',
+      description: 'Comunidades de aprendizaje'
+    },
+    {
       label: 'Blog',
       icon: 'file-text',
       route: 'blog',

@@ -44,14 +44,14 @@
         <div class="modal-form-header">
           <h2>
             <lucide-icon name="file-text"></lucide-icon>
-            Nueva Publicación
+            {{ modoEdicion ? 'Editar Publicación' : 'Nueva Publicación' }}
           </h2>
           <button class="btn-close-form" (click)="toggleFormulario()">
             <lucide-icon name="x"></lucide-icon>
           </button>
         </div>
         
-        <form (submit)="$event.preventDefault(); crearPublicacion()">
+        <form (submit)="$event.preventDefault(); guardarPublicacion()">
           <div class="form-group">
             <label>Título *</label>
             <input 
@@ -116,7 +116,7 @@
           <div class="form-actions">
             <button type="submit" class="btn-submit" [disabled]="cargando">
               <lucide-icon [name]="cargando ? 'loader' : 'check'"></lucide-icon>
-              {{ cargando ? 'Publicando...' : 'Publicar' }}
+              {{ cargando ? (modoEdicion ? 'Actualizando...' : 'Publicando...') : (modoEdicion ? 'Actualizar' : 'Publicar') }}
             </button>
             <button type="button" class="btn-cancel" (click)="toggleFormulario()">
               <lucide-icon name="x"></lucide-icon>
@@ -245,10 +245,16 @@
               </div>
               
               @if (puedeEditarPublicacion(publicacionSeleccionada)) {
-                <button class="btn-eliminar-publicacion" (click)="eliminarPublicacion(publicacionSeleccionada.id_publicacion)">
-                  <lucide-icon name="trash-2"></lucide-icon>
-                  Eliminar
-                </button>
+                <div class="publicacion-botones">
+                  <button class="btn-editar-publicacion" (click)="editarPublicacion(publicacionSeleccionada)">
+                    <lucide-icon name="edit"></lucide-icon>
+                    Editar
+                  </button>
+                  <button class="btn-eliminar-publicacion" (click)="eliminarPublicacion(publicacionSeleccionada.id_publicacion)">
+                    <lucide-icon name="trash-2"></lucide-icon>
+                    Eliminar
+                  </button>
+                </div>
               }
             </div>
           </div>
