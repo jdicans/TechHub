@@ -1,14 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { EmprendimientosService } from '../../services/emprendimientos.service';
-import {
-  Emprendimiento,
-  CategoriaEmprendimiento,
-  EtapaEmprendimiento,
-  FiltroEmprendimientos
-} from '../../models/emprendimiento.model';
+import { EventoConRelaciones, CreateEventoRequest } from '../../../eventos/models/evento.model';
 import { AlertService } from '../../../../shared/services/alert.service';
-import { FilterService, FilterOptions, FilterResult } from '../../../../shared/services/filter.service';
-import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-emprendimientos',
@@ -17,11 +10,9 @@ import { Observable } from 'rxjs';
   styleUrl: './emprendimientos.css',
 })
 export class Emprendimientos implements OnInit {
-  emprendimientos$: Observable<Emprendimiento[]>;
-  emprendimientosOriginales: Emprendimiento[] = [];
-  emprendimientosPaginados: Emprendimiento[] = [];
-  categorias = Object.values(CategoriaEmprendimiento);
-  etapas = Object.values(EtapaEmprendimiento);
+  // Datos
+  emprendimientos: EventoConRelaciones[] = [];
+  cargando = false;
 
   // Paginación
   paginaActual = 1;
@@ -29,92 +20,123 @@ export class Emprendimientos implements OnInit {
   totalItems = 0;
 
   // Filtros
-  filtrosActivos: FilterOptions = {};
-  filtro: FiltroEmprendimientos = {};
-  mostrarFormulario = false;
-  emprendimientoSeleccionado: Emprendimiento | null = null;
+  filtros = {
+    busqueda: '',
+    modalidad: '',
+    ordenarPor: 'recientes'
+  };
 
-  nuevoEmprendimiento = {
+  // Formulario
+  mostrarFormulario = false;
+  emprendimientoEditando: EventoConRelaciones | null = null;
+  emprendimientoSeleccionado: EventoConRelaciones | null = null;
+
+  nuevoEmprendimiento: CreateEventoRequest = {
     nombre: '',
     descripcion: '',
-    categoria: CategoriaEmprendimiento.TECNOLOGIA,
-    etapa: EtapaEmprendimiento.IDEA,
-    descripcionDetallada: '',
-    problema: '',
-    solucion: '',
-    mercadoObjetivo: '',
-    propuestaValor: '',
-    equipoRequerido: '',
-    tecnologias: '',
-    buscoInversion: false,
-    montoInversion: 0,
-    buscoColaboradores: false,
-    website: '',
-    email: '',
-    telefono: '',
-    imagen: ''
+    fecha_evento: new Date().toISOString().split('T')[0], // Fecha actual por defecto (oculta)
+    hora_evento: '00:00', // Hora por defecto (oculta)
+    lugar: '',
+    modalidad: ''
   };
+
+  // Usuario actual
+  usuarioActualId: number = 0;
 
   constructor(
     private emprendimientosService: EmprendimientosService,
-    private alertService: AlertService,
-    private filterService: FilterService
-  ) {
-    this.emprendimientos$ = this.emprendimientosService.getEmprendimientos();
+    private alertService: AlertService
+  ) {}
+
+  async ngOnInit(): Promise<void> {
+    this.usuarioActualId = parseInt(localStorage.getItem('userId') || '0');
+    await this.cargarEmprendimientos();
   }
 
-  ngOnInit(): void {
-    this.cargarEmprendimientos();
+  async cargarEmprendimientos(): Promise<void> {
+    this.cargando = true;
+    try {
+      this.emprendimientos = await this.emprendimientosService.obtenerEmprendimientos();
+      this.totalItems = this.emprendimientos.length;
+    } catch (error: any) {
+      console.error('Error al cargar emprendimientos:', error);
+      const mensaje = error.response?.data?.message || error.response?.data?.error || error.message || 'No se pudieron cargar los emprendimientos';
+      
+      if (error.response?.status !== 400 && error.response?.status !== 404) {
+        this.alertService.error('Error', mensaje);
+      }
+    } finally {
+      this.cargando = false;
+    }
   }
 
-  cargarEmprendimientos(): void {
-    this.emprendimientosService.getEmprendimientos().subscribe(emprendimientos => {
-      this.emprendimientosOriginales = emprendimientos;
-      this.aplicarFiltrosYPaginacion();
-    });
-  }
-
-  onFiltrosChange(filtros: FilterOptions): void {
-    this.filtrosActivos = filtros;
+  aplicarFiltros(): void {
     this.paginaActual = 1;
-    this.aplicarFiltrosYPaginacion();
+  }
+
+  get emprendimientosFiltrados(): EventoConRelaciones[] {
+    let emprendimientos = [...this.emprendimientos];
+
+    // Filtro de búsqueda
+    if (this.filtros.busqueda) {
+      const busquedaLower = this.filtros.busqueda.toLowerCase();
+      emprendimientos = emprendimientos.filter(e =>
+        e.nombre.toLowerCase().includes(busquedaLower) ||
+        e.descripcion?.toLowerCase().includes(busquedaLower) ||
+        e.lugar?.toLowerCase().includes(busquedaLower)
+      );
+    }
+
+    // Filtro de modalidad
+    if (this.filtros.modalidad) {
+      emprendimientos = emprendimientos.filter(e => e.modalidad === this.filtros.modalidad);
+    }
+
+    // Ordenamiento
+    emprendimientos = this.ordenarEmprendimientos(emprendimientos);
+
+    return emprendimientos;
+  }
+
+  private ordenarEmprendimientos(emprendimientos: EventoConRelaciones[]): EventoConRelaciones[] {
+    switch (this.filtros.ordenarPor) {
+      case 'antiguos':
+        return emprendimientos.sort((a, b) => 
+          new Date(a.fecha_evento).getTime() - new Date(b.fecha_evento).getTime()
+        );
+      case 'recientes':
+        return emprendimientos.sort((a, b) => 
+          new Date(b.fecha_evento).getTime() - new Date(a.fecha_evento).getTime()
+        );
+      case 'nombre':
+        return emprendimientos.sort((a, b) => 
+          a.nombre.localeCompare(b.nombre)
+        );
+      default:
+        return emprendimientos;
+    }
+  }
+
+  get emprendimientosPaginados(): EventoConRelaciones[] {
+    const filtrados = this.emprendimientosFiltrados;
+    this.totalItems = filtrados.length;
+    const inicio = (this.paginaActual - 1) * this.itemsPorPagina;
+    const fin = inicio + this.itemsPorPagina;
+    return filtrados.slice(inicio, fin);
   }
 
   onPaginaChange(pagina: number): void {
     this.paginaActual = pagina;
-    this.aplicarFiltrosYPaginacion();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  private aplicarFiltrosYPaginacion(): void {
-    const resultado: FilterResult<Emprendimiento> = this.filterService.filterAndSort(
-      this.emprendimientosOriginales,
-      this.filtrosActivos,
-      {
-        page: this.paginaActual,
-        itemsPerPage: this.itemsPorPagina
-      }
-    );
-
-    this.emprendimientosPaginados = resultado.items;
-    this.totalItems = resultado.total;
-  }
-
-  aplicarFiltros(): void {
-    this.emprendimientos$ = this.emprendimientosService.filtrarEmprendimientos(this.filtro);
-  }
-
   limpiarFiltros(): void {
-    this.filtro = {};
-    this.aplicarFiltros();
-  }
-
-  toggleLike(emprendimientoId: string): void {
-    this.emprendimientosService.toggleLike(emprendimientoId);
-  }
-
-  tieneLike(emprendimientoId: string): boolean {
-    return this.emprendimientosService.tieneLike(emprendimientoId);
+    this.filtros = {
+      busqueda: '',
+      modalidad: '',
+      ordenarPor: 'recientes'
+    };
+    this.paginaActual = 1;
   }
 
   toggleFormulario(): void {
@@ -124,96 +146,95 @@ export class Emprendimientos implements OnInit {
     }
   }
 
-  verDetalle(emprendimiento: Emprendimiento): void {
-    this.emprendimientoSeleccionado = emprendimiento;
-    this.emprendimientosService.incrementarVistas(emprendimiento.id);
+  editarEmprendimiento(emprendimiento: EventoConRelaciones): void {
+    this.emprendimientoEditando = emprendimiento;
+    this.nuevoEmprendimiento = {
+      nombre: emprendimiento.nombre,
+      descripcion: emprendimiento.descripcion,
+      fecha_evento: new Date().toISOString().split('T')[0], // Mantener fecha actual
+      hora_evento: '00:00', // Hora por defecto
+      lugar: emprendimiento.lugar || '',
+      modalidad: emprendimiento.modalidad || ''
+    };
+    this.mostrarFormulario = true;
   }
 
-  cerrarDetalle(): void {
-    this.emprendimientoSeleccionado = null;
+  cancelarFormulario(): void {
+    this.mostrarFormulario = false;
+    this.resetearFormulario();
   }
 
-  crearEmprendimiento(): void {
+  async crearEmprendimiento(): Promise<void> {
     if (!this.validarFormulario()) {
       this.alertService.warning('Campos incompletos', 'Por favor completa todos los campos obligatorios');
       return;
     }
 
-    this.emprendimientosService.crearEmprendimiento({
-      nombre: this.nuevoEmprendimiento.nombre,
-      descripcion: this.nuevoEmprendimiento.descripcion,
-      categoria: this.nuevoEmprendimiento.categoria,
-      etapa: this.nuevoEmprendimiento.etapa,
-      creador: {
-        id: 'user-1',
-        nombre: 'Usuario Actual',
-        avatar: '👨‍💻',
-        email: this.nuevoEmprendimiento.email || 'user@example.com'
-      },
-      descripcionDetallada: this.nuevoEmprendimiento.descripcionDetallada,
-      problema: this.nuevoEmprendimiento.problema,
-      solucion: this.nuevoEmprendimiento.solucion,
-      mercadoObjetivo: this.nuevoEmprendimiento.mercadoObjetivo,
-      propuestaValor: this.nuevoEmprendimiento.propuestaValor,
-      equipoRequerido: this.nuevoEmprendimiento.equipoRequerido.split(',').map(s => s.trim()).filter(s => s),
-      tecnologias: this.nuevoEmprendimiento.tecnologias.split(',').map(s => s.trim()).filter(s => s),
-      buscoInversion: this.nuevoEmprendimiento.buscoInversion,
-      montoInversion: this.nuevoEmprendimiento.buscoInversion ? this.nuevoEmprendimiento.montoInversion : undefined,
-      buscoColaboradores: this.nuevoEmprendimiento.buscoColaboradores,
-      website: this.nuevoEmprendimiento.website || undefined,
-      email: this.nuevoEmprendimiento.email || undefined,
-      telefono: this.nuevoEmprendimiento.telefono || undefined,
-      imagen: this.nuevoEmprendimiento.imagen || `https://picsum.photos/seed/${Date.now()}/600/400`
-    });
+    try {
+      await this.emprendimientosService.crearEmprendimiento(this.nuevoEmprendimiento);
+      this.alertService.success('¡Emprendimiento creado!', 'El emprendimiento se ha publicado exitosamente');
+      this.cancelarFormulario();
+      await this.cargarEmprendimientos();
+    } catch (error: any) {
+      this.alertService.error('Error', error.response?.data?.message || 'No se pudo crear el emprendimiento');
+    }
+  }
 
-    this.alertService.success('¡Emprendimiento creado!', 'Tu emprendimiento se ha publicado exitosamente');
-    this.toggleFormulario();
+  async actualizarEmprendimiento(): Promise<void> {
+    if (!this.validarFormulario() || !this.emprendimientoEditando) {
+      this.alertService.warning('Campos incompletos', 'Por favor completa todos los campos obligatorios');
+      return;
+    }
+
+    try {
+      await this.emprendimientosService.actualizarEmprendimiento(this.emprendimientoEditando.id_evento!, this.nuevoEmprendimiento);
+      this.alertService.success('¡Emprendimiento actualizado!', 'El emprendimiento se ha actualizado exitosamente');
+      this.cancelarFormulario();
+      await this.cargarEmprendimientos();
+    } catch (error: any) {
+      this.alertService.error('Error', error.response?.data?.message || 'No se pudo actualizar el emprendimiento');
+    }
+  }
+
+  async eliminarEmprendimiento(emprendimientoId: number): Promise<void> {
+    if (!confirm('¿Estás seguro de que quieres eliminar este emprendimiento?')) {
+      return;
+    }
+
+    try {
+      await this.emprendimientosService.eliminarEmprendimiento(emprendimientoId);
+      this.alertService.success('Emprendimiento eliminado', 'El emprendimiento se ha eliminado exitosamente');
+      await this.cargarEmprendimientos();
+    } catch (error: any) {
+      this.alertService.error('Error', error.response?.data?.message || 'No se pudo eliminar el emprendimiento');
+    }
   }
 
   private validarFormulario(): boolean {
     return !!(
       this.nuevoEmprendimiento.nombre &&
-      this.nuevoEmprendimiento.descripcion &&
-      this.nuevoEmprendimiento.descripcionDetallada &&
-      this.nuevoEmprendimiento.problema &&
-      this.nuevoEmprendimiento.solucion &&
-      this.nuevoEmprendimiento.mercadoObjetivo &&
-      this.nuevoEmprendimiento.propuestaValor
+      this.nuevoEmprendimiento.descripcion
     );
   }
 
   private resetearFormulario(): void {
+    this.emprendimientoEditando = null;
     this.nuevoEmprendimiento = {
       nombre: '',
       descripcion: '',
-      categoria: CategoriaEmprendimiento.TECNOLOGIA,
-      etapa: EtapaEmprendimiento.IDEA,
-      descripcionDetallada: '',
-      problema: '',
-      solucion: '',
-      mercadoObjetivo: '',
-      propuestaValor: '',
-      equipoRequerido: '',
-      tecnologias: '',
-      buscoInversion: false,
-      montoInversion: 0,
-      buscoColaboradores: false,
-      website: '',
-      email: '',
-      telefono: '',
-      imagen: ''
+      fecha_evento: new Date().toISOString().split('T')[0],
+      hora_evento: '00:00',
+      lugar: '',
+      modalidad: ''
     };
   }
 
-  getEtapaBadgeClass(etapa: EtapaEmprendimiento): string {
-    const classes: Record<EtapaEmprendimiento, string> = {
-      [EtapaEmprendimiento.IDEA]: 'badge-idea',
-      [EtapaEmprendimiento.VALIDACION]: 'badge-validacion',
-      [EtapaEmprendimiento.MVP]: 'badge-mvp',
-      [EtapaEmprendimiento.TRACCION]: 'badge-traccion',
-      [EtapaEmprendimiento.CRECIMIENTO]: 'badge-crecimiento',
-      [EtapaEmprendimiento.ESCALAMIENTO]: 'badge-escalamiento'
-    };
-    return classes[etapa] || '';
+  // Métodos para modal de detalle
+  verDetalle(emprendimiento: EventoConRelaciones): void {
+    this.emprendimientoSeleccionado = emprendimiento;
+  }
+
+  cerrarDetalle(): void {
+    this.emprendimientoSeleccionado = null;
   }
 }

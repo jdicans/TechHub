@@ -5,11 +5,22 @@
       <p>Cargando miembros...</p>
     </div>
   } @else {
+    <!-- Header Section -->
     <header class="comunidad-header">
-      <h1>Comunidad TechHub</h1>
-      <p class="subtitle">{{ miembros.length }} miembros registrados</p>
-      
-      <!-- Buscador y Filtros -->
+      <div class="header-content">
+        <h1 class="title">Comunidad TechHub</h1>
+        <p class="subtitle">Conecta con {{ miembros.length }} profesionales y entusiastas de la tecnología</p>
+        <div class="header-stats">
+          <div class="stat-item">
+            <lucide-icon name="users"></lucide-icon>
+            <span>{{ miembros.length }} Miembros</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Buscador y Filtros -->
+    <div class="filtros-section">
       <div class="filtros-container">
         <div class="search-box">
           <lucide-icon name="search"></lucide-icon>
@@ -50,7 +61,7 @@
           </div>
         </div>
       </div>
-    </header>
+    </div>
 
     <div class="miembros-grid">
       @for (miembro of miembrosFiltrados; track miembro.id_usuario) {

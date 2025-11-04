@@ -1,32 +1,35 @@
 <div class="eventos-container">
-  <div class="header">
+  <!-- Header Section -->
+  <header class="header">
     <div class="header-content">
-      <h1>Eventos TechHub</h1>
-      <p>Descubre y participa en eventos de tecnología</p>
-    </div>
-    <div class="header-actions">
-      <div class="tabs">
-        <button
-          class="tab"
-          [class.active]="vistaActual === 'todos'"
-          (click)="cambiarVista('todos')"
-        >
-          Todos los eventos
-        </button>
-        <button
-          class="tab"
-          [class.active]="vistaActual === 'inscritos'"
-          (click)="cambiarVista('inscritos')"
-        >
-          Mis inscripciones
+      <h1 class="title">Eventos TechHub</h1>
+      <p class="subtitle">Descubre y participa en eventos de tecnología de la comunidad</p>
+      <div class="header-actions">
+        <div class="tabs">
+          <button
+            class="tab"
+            [class.active]="vistaActual === 'todos'"
+            (click)="cambiarVista('todos')"
+          >
+            <lucide-icon name="calendar"></lucide-icon>
+            Todos los eventos
+          </button>
+          <button
+            class="tab"
+            [class.active]="vistaActual === 'inscritos'"
+            (click)="cambiarVista('inscritos')"
+          >
+            <lucide-icon name="check-circle"></lucide-icon>
+            Mis inscripciones
+          </button>
+        </div>
+        <button class="btn-crear" (click)="toggleFormulario()">
+          <lucide-icon [name]="mostrarFormulario ? 'x' : 'plus'"></lucide-icon>
+          {{ mostrarFormulario ? 'Cancelar' : 'Crear Evento' }}
         </button>
       </div>
-      <button class="btn btn-primary" (click)="toggleFormulario()">
-        <lucide-icon [name]="mostrarFormulario ? 'x' : 'plus'"></lucide-icon>
-        {{ mostrarFormulario ? 'Cancelar' : 'Crear Evento' }}
-      </button>
     </div>
-  </div>
+  </header>
 
   <!-- Formulario de creación de evento -->
   @if (mostrarFormulario) {

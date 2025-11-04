@@ -31,8 +31,11 @@ export class EventosService {
       // La respuesta puede venir en response.data.data o directamente en response.data
       const eventos = response.data?.data || response.data || [];
       
+      // Filtrar eventos: excluir categoría "Emprendimiento" (id_categoria = 9)
+      const eventosFiltrados = eventos.filter((evento: any) => evento.id_categoria !== 9);
+      
       // Si los eventos no tienen las propiedades de relaciones, las inicializamos
-      return eventos.map((evento: any) => ({
+      return eventosFiltrados.map((evento: any) => ({
         ...evento,
         categoria: evento.categoria || null,
         organizador: evento.organizador || null,
@@ -127,13 +130,13 @@ export class EventosService {
         organizador: e.organizador
       })));
       
-      // Filtrar solo los eventos que YO creé
-      // Comparar como números para evitar problemas de tipo
+      // Filtrar: eventos que YO creé Y que NO sean de categoría Emprendimiento (id_categoria = 9)
       const misEventos = todosEventos.filter((evento: any) => {
         const eventoUserId = parseInt(evento.id_usuario) || evento.id_usuario;
         const match = eventoUserId == userId; // Usar == para comparación flexible
-        console.log(`Comparando: evento.id_usuario=${evento.id_usuario} (${typeof evento.id_usuario}) == userId=${userId} (${typeof userId}) = ${match}`);
-        return match;
+        const noEsEmprendimiento = evento.id_categoria !== 9;
+        console.log(`Comparando: evento.id_usuario=${evento.id_usuario} (${typeof evento.id_usuario}) == userId=${userId} (${typeof userId}) = ${match}, noEsEmprendimiento=${noEsEmprendimiento}`);
+        return match && noEsEmprendimiento;
       });
       
       console.log(`Encontrados ${misEventos.length} eventos creados por mí`);
@@ -299,9 +302,13 @@ export class EventosService {
       const response = await apiClient.get('/eventos/mis-eventos');
       console.log('✅ Eventos inscritos obtenidos:', response.data);
       
-      // Mapear para asegurar que tengan las propiedades necesarias
+      // Mapear y filtrar para asegurar que tengan las propiedades necesarias
       const eventos = response.data?.data || response.data || [];
-      return eventos.map((evento: any) => ({
+      
+      // Filtrar: excluir emprendimientos (id_categoria = 9)
+      const eventosFiltrados = eventos.filter((evento: any) => evento.id_categoria !== 9);
+      
+      return eventosFiltrados.map((evento: any) => ({
         ...evento,
         categoria: evento.categoria || null,
         organizador: evento.organizador || null,

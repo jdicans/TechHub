@@ -1,301 +1,324 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-import {
-  Emprendimiento,
-  CategoriaEmprendimiento,
-  EtapaEmprendimiento,
-  FiltroEmprendimientos
-} from '../models/emprendimiento.model';
+import { Injectable } from '@angular/core';import apiClient from 'src/shared/services/api-client';
+import { EventoConRelaciones, CreateEventoRequest, UpdateEventoRequest } from '../../eventos/models/evento.model';
+
+// ID de la categoría "Emprendimiento" en la base de datos
+const CATEGORIA_EMPRENDIMIENTO_ID = 9;
 
 @Injectable({
   providedIn: 'root'
 })
 export class EmprendimientosService {
-  private emprendimientosSubject = new BehaviorSubject<Emprendimiento[]>(this.getEmprendimientosIniciales());
-  public emprendimientos$ = this.emprendimientosSubject.asObservable();
-
-  private currentUserId = 'user-1'; // Simula el usuario actual
-
+  
   constructor() {}
 
-  getEmprendimientos(): Observable<Emprendimiento[]> {
-    return this.emprendimientos$;
-  }
-
-  getEmprendimientoById(id: string): Observable<Emprendimiento | undefined> {
-    return this.emprendimientos$.pipe(
-      map(emprendimientos => emprendimientos.find(e => e.id === id))
-    );
-  }
-
-  filtrarEmprendimientos(filtro: FiltroEmprendimientos): Observable<Emprendimiento[]> {
-    return this.emprendimientos$.pipe(
-      map(emprendimientos => {
-        let emprendimientosFiltrados = [...emprendimientos];
-
-        if (filtro.categoria) {
-          emprendimientosFiltrados = emprendimientosFiltrados.filter(
-            e => e.categoria === filtro.categoria
-          );
-        }
-
-        if (filtro.etapa) {
-          emprendimientosFiltrados = emprendimientosFiltrados.filter(
-            e => e.etapa === filtro.etapa
-          );
-        }
-
-        if (filtro.busqueda) {
-          const busqueda = filtro.busqueda.toLowerCase();
-          emprendimientosFiltrados = emprendimientosFiltrados.filter(
-            e => e.nombre.toLowerCase().includes(busqueda) ||
-                 e.descripcion.toLowerCase().includes(busqueda) ||
-                 e.categoria.toLowerCase().includes(busqueda)
-          );
-        }
-
-        if (filtro.buscoInversion !== undefined) {
-          emprendimientosFiltrados = emprendimientosFiltrados.filter(
-            e => e.buscoInversion === filtro.buscoInversion
-          );
-        }
-
-        if (filtro.buscoColaboradores !== undefined) {
-          emprendimientosFiltrados = emprendimientosFiltrados.filter(
-            e => e.buscoColaboradores === filtro.buscoColaboradores
-          );
-        }
-
-        return emprendimientosFiltrados;
-      })
-    );
-  }
-
-  crearEmprendimiento(emprendimiento: Omit<Emprendimiento, 'id' | 'createdAt' | 'updatedAt' | 'likes' | 'vistas'>): void {
-    const nuevoEmprendimiento: Emprendimiento = {
-      ...emprendimiento,
-      id: this.generarId(),
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      likes: [],
-      vistas: 0
-    };
-
-    const emprendimientosActuales = this.emprendimientosSubject.value;
-    this.emprendimientosSubject.next([...emprendimientosActuales, nuevoEmprendimiento]);
-  }
-
-  toggleLike(emprendimientoId: string): void {
-    const emprendimientos = this.emprendimientosSubject.value;
-    const emprendimiento = emprendimientos.find(e => e.id === emprendimientoId);
-
-    if (!emprendimiento) return;
-
-    const index = emprendimiento.likes.indexOf(this.currentUserId);
-    if (index === -1) {
-      emprendimiento.likes.push(this.currentUserId);
-    } else {
-      emprendimiento.likes.splice(index, 1);
+  /**
+   * Obtener todos los emprendimientos (eventos con id_categoria = 9)
+   */
+  async obtenerEmprendimientos(): Promise<EventoConRelaciones[]> {
+    try {
+      console.log('💼 Obteniendo todos los emprendimientos...');
+      
+      const response = await apiClient.get('/eventos?select=*');
+      console.log('✅ Eventos obtenidos:', response.data);
+      
+      const eventos = response.data?.data || response.data || [];
+      
+      // Filtrar solo los eventos con categoria de emprendimiento (id_categoria = 9)
+      const emprendimientos = eventos.filter((evento: any) => 
+        evento.id_categoria === CATEGORIA_EMPRENDIMIENTO_ID
+      );
+      
+      console.log(`✅ ${emprendimientos.length} emprendimientos encontrados`);
+      
+      return emprendimientos.map((evento: any) => ({
+        ...evento,
+        categoria: evento.categoria || null,
+        organizador: evento.organizador || null,
+        inscritos: evento.inscritos || [],
+        total_inscritos: evento.total_inscritos || evento.inscritos?.length || 0,
+        esta_inscrito: evento.esta_inscrito || false
+      }));
+    } catch (error: any) {
+      console.error('❌ Error al obtener emprendimientos:', error);
+      console.error('❌ Error response:', error.response);
+      console.error('❌ Error data:', error.response?.data);
+      throw error;
     }
-
-    emprendimiento.updatedAt = new Date();
-    this.emprendimientosSubject.next([...emprendimientos]);
   }
 
-  incrementarVistas(emprendimientoId: string): void {
-    const emprendimientos = this.emprendimientosSubject.value;
-    const emprendimiento = emprendimientos.find(e => e.id === emprendimientoId);
-
-    if (!emprendimiento) return;
-
-    emprendimiento.vistas++;
-    this.emprendimientosSubject.next([...emprendimientos]);
-  }
-
-  tieneLike(emprendimientoId: string): boolean {
-    const emprendimiento = this.emprendimientosSubject.value.find(e => e.id === emprendimientoId);
-    return emprendimiento ? emprendimiento.likes.includes(this.currentUserId) : false;
-  }
-
-  private generarId(): string {
-    return `emprendimiento-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  }
-
-  private getEmprendimientosIniciales(): Emprendimiento[] {
-    return [
-      {
-        id: '1',
-        nombre: 'EduTech AI',
-        descripcion: 'Plataforma de educación personalizada con inteligencia artificial',
-        categoria: CategoriaEmprendimiento.EDUCACION,
-        etapa: EtapaEmprendimiento.MVP,
-        creador: {
-          id: 'user-2',
-          nombre: 'María González',
-          avatar: '👩‍💼',
-          email: 'maria@edutech.com'
-        },
-        descripcionDetallada: 'EduTech AI es una plataforma revolucionaria que utiliza IA para personalizar el aprendizaje de cada estudiante.',
-        problema: 'La educación tradicional no se adapta al ritmo y estilo de aprendizaje de cada estudiante.',
-        solucion: 'Algoritmos de IA que analizan el progreso y adaptan el contenido en tiempo real.',
-        mercadoObjetivo: 'Estudiantes de secundaria y universidad, escuelas y universidades',
-        propuestaValor: 'Aumenta el rendimiento académico en un 40% mediante aprendizaje adaptativo',
-        equipoRequerido: ['Desarrollador Full Stack', 'Data Scientist', 'UX Designer'],
-        tecnologias: ['React', 'Python', 'TensorFlow', 'PostgreSQL'],
-        buscoInversion: true,
-        montoInversion: 100000,
-        buscoColaboradores: true,
-        website: 'https://edutech-ai.com',
-        email: 'contacto@edutech-ai.com',
-        redesSociales: {
-          linkedin: 'edutech-ai',
-          twitter: '@edutech_ai'
-        },
-        imagen: 'https://picsum.photos/seed/edutech/600/400',
-        galeria: [],
-        likes: ['user-1', 'user-3'],
-        vistas: 245,
-        createdAt: new Date('2025-09-15'),
-        updatedAt: new Date('2025-10-20')
-      },
-      {
-        id: '2',
-        nombre: 'GreenLogistics',
-        descripcion: 'Solución de logística sostenible para últimas millas',
-        categoria: CategoriaEmprendimiento.LOGISTICA,
-        etapa: EtapaEmprendimiento.TRACCION,
-        creador: {
-          id: 'user-3',
-          nombre: 'Carlos Ramírez',
-          avatar: '👨‍💻',
-          email: 'carlos@greenlogistics.com'
-        },
-        descripcionDetallada: 'Red de distribución urbana usando vehículos eléctricos y bicicletas cargo.',
-        problema: 'Las entregas urbanas generan alta contaminación y congestión',
-        solucion: 'Red de micro-centros de distribución con flota 100% eléctrica',
-        mercadoObjetivo: 'E-commerce, restaurantes, farmacias en zonas urbanas',
-        propuestaValor: 'Reducción del 70% en emisiones con entregas más rápidas',
-        equipoRequerido: ['Gerente de Operaciones', 'Desarrollador Mobile'],
-        tecnologias: ['Flutter', 'Node.js', 'MongoDB', 'Google Maps API'],
-        buscoInversion: true,
-        montoInversion: 250000,
-        buscoColaboradores: false,
-        website: 'https://greenlogistics.com',
-        email: 'info@greenlogistics.com',
-        redesSociales: {
-          linkedin: 'greenlogistics',
-          instagram: '@greenlogistics'
-        },
-        imagen: 'https://picsum.photos/seed/logistics/600/400',
-        galeria: [],
-        likes: ['user-1'],
-        vistas: 189,
-        createdAt: new Date('2025-08-01'),
-        updatedAt: new Date('2025-10-25')
-      },
-      {
-        id: '3',
-        nombre: 'HealthConnect',
-        descripcion: 'Telemedicina accesible para comunidades rurales',
-        categoria: CategoriaEmprendimiento.SALUD,
-        etapa: EtapaEmprendimiento.CRECIMIENTO,
-        creador: {
-          id: 'user-4',
-          nombre: 'Dra. Ana Martínez',
-          avatar: '👩‍⚕️',
-          email: 'ana@healthconnect.com'
-        },
-        descripcionDetallada: 'Plataforma de telemedicina que conecta pacientes en zonas rurales con especialistas.',
-        problema: 'Falta de acceso a atención médica especializada en zonas rurales',
-        solucion: 'Consultas médicas virtuales, seguimiento remoto y prescripción digital',
-        mercadoObjetivo: 'Población rural sin acceso a especialistas médicos',
-        propuestaValor: 'Atención médica de calidad en menos de 24 horas',
-        equipoRequerido: ['Médicos asociados'],
-        tecnologias: ['React Native', 'WebRTC', 'Firebase', 'HIPAA Compliant'],
-        buscoInversion: false,
-        buscoColaboradores: true,
-        website: 'https://healthconnect.com',
-        email: 'contacto@healthconnect.com',
-        telefono: '+1234567890',
-        redesSociales: {
-          facebook: 'healthconnect',
-          instagram: '@health_connect'
-        },
-        imagen: 'https://picsum.photos/seed/health/600/400',
-        galeria: [],
-        likes: ['user-2', 'user-5'],
-        vistas: 312,
-        createdAt: new Date('2025-06-10'),
-        updatedAt: new Date('2025-10-28')
-      },
-      {
-        id: '4',
-        nombre: 'FoodShare',
-        descripcion: 'Marketplace para reducir desperdicio de alimentos',
-        categoria: CategoriaEmprendimiento.SOSTENIBILIDAD,
-        etapa: EtapaEmprendimiento.VALIDACION,
-        creador: {
-          id: 'user-5',
-          nombre: 'Roberto Silva',
-          avatar: '👨‍🍳',
-          email: 'roberto@foodshare.com'
-        },
-        descripcionDetallada: 'App que conecta restaurantes con excedentes de comida con consumidores a precios reducidos.',
-        problema: '30% de los alimentos producidos se desperdician mientras hay hambre',
-        solucion: 'Marketplace que permite vender excedentes a precios reducidos antes de cierre',
-        mercadoObjetivo: 'Restaurantes, panaderías, supermercados y consumidores conscientes',
-        propuestaValor: 'Reduce desperdicio en 60% y ahorra 50% en comida de calidad',
-        equipoRequerido: ['Marketing Manager', 'Desarrollador Backend'],
-        tecnologias: ['Vue.js', 'Laravel', 'MySQL', 'Stripe'],
-        buscoInversion: true,
-        montoInversion: 50000,
-        buscoColaboradores: true,
-        email: 'hola@foodshare.com',
-        redesSociales: {
-          instagram: '@foodshare',
-          twitter: '@foodshare'
-        },
-        imagen: 'https://picsum.photos/seed/foodshare/600/400',
-        galeria: [],
-        likes: ['user-1', 'user-3', 'user-4'],
-        vistas: 421,
-        createdAt: new Date('2025-10-01'),
-        updatedAt: new Date('2025-10-27')
-      },
-      {
-        id: '5',
-        nombre: 'CodeMentor Pro',
-        descripcion: 'Plataforma de mentoría para desarrolladores junior',
-        categoria: CategoriaEmprendimiento.TECNOLOGIA,
-        etapa: EtapaEmprendimiento.IDEA,
-        creador: {
-          id: 'user-6',
-          nombre: 'Luis Torres',
-          avatar: '👨‍💻',
-          email: 'luis@codementor.com'
-        },
-        descripcionDetallada: 'Red de mentores senior que ayudan a juniors a crecer profesionalmente.',
-        problema: 'Developers junior luchan por encontrar guía y dirección en su carrera',
-        solucion: 'Matching inteligente entre mentores y mentees con sesiones estructuradas',
-        mercadoObjetivo: 'Desarrolladores junior (0-3 años exp) y empresas tech',
-        propuestaValor: 'Acelera crecimiento profesional en 3x mediante mentoría personalizada',
-        equipoRequerido: ['Co-founder técnico', 'Community Manager', 'UX Designer'],
-        tecnologias: ['Angular', 'Node.js', 'WebRTC', 'Zoom API'],
-        buscoInversion: false,
-        buscoColaboradores: true,
-        email: 'contacto@codementor-pro.com',
-        redesSociales: {
-          linkedin: 'codementor-pro',
-          twitter: '@codementor_pro'
-        },
-        imagen: 'https://picsum.photos/seed/codementor/600/400',
-        galeria: [],
-        likes: [],
-        vistas: 87,
-        createdAt: new Date('2025-10-20'),
-        updatedAt: new Date('2025-10-28')
+  /**
+   * Obtener un emprendimiento por ID
+   */
+  async obtenerEmprendimientoPorId(id: number): Promise<EventoConRelaciones> {
+    try {
+      console.log(`💼 Obteniendo emprendimiento con ID: ${id}`);
+      const response = await apiClient.get(`/eventos/${id}`);
+      console.log('✅ Emprendimiento obtenido:', response.data);
+      
+      if (response.data && response.data.data) {
+        return response.data.data;
       }
-    ];
+      
+      return response.data;
+    } catch (error: any) {
+      console.error(`❌ Error al obtener emprendimiento ${id}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Obtener mis emprendimientos (eventos que YO creé con categoria emprendimiento)
+   */
+  async obtenerMisEmprendimientos(): Promise<EventoConRelaciones[]> {
+    try {
+      console.log('💼 Obteniendo mis emprendimientos creados...');
+      
+      // Obtener todos los eventos
+      const response = await apiClient.get('/eventos');
+      const todosEventos = response.data?.data || response.data || [];
+      
+      // Obtener el ID del usuario actual
+      let userId = parseInt(localStorage.getItem('userId') || '0');
+      
+      if (userId === 0) {
+        userId = parseInt(localStorage.getItem('id_usuario') || '0');
+      }
+      if (userId === 0) {
+        userId = parseInt(localStorage.getItem('user_id') || '0');
+      }
+      if (userId === 0) {
+        userId = parseInt(localStorage.getItem('id') || '0');
+      }
+      
+      console.log('👤 Mi userId desde localStorage:', userId);
+      
+      // Filtrar: eventos creados por mí Y con categoría emprendimiento
+      const misEmprendimientos = todosEventos.filter((evento: any) => {
+        const eventoUserId = parseInt(evento.id_usuario) || evento.id_usuario;
+        const esMio = eventoUserId == userId;
+        const esEmprendimiento = evento.id_categoria === CATEGORIA_EMPRENDIMIENTO_ID;
+        return esMio && esEmprendimiento;
+      });
+      
+      console.log(`✅ Encontrados ${misEmprendimientos.length} emprendimientos creados por mí`);
+      
+      return misEmprendimientos.map((evento: any) => ({
+        ...evento,
+        categoria: evento.categoria || null,
+        organizador: evento.organizador || null,
+        inscritos: evento.inscritos || [],
+        total_inscritos: evento.total_inscritos || evento.inscritos?.length || 0,
+        esta_inscrito: evento.esta_inscrito || false
+      }));
+    } catch (error: any) {
+      console.error('❌ Error al obtener mis emprendimientos:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Crear un nuevo emprendimiento (evento con categoria emprendimiento)
+   */
+  async crearEmprendimiento(data: CreateEventoRequest): Promise<EventoConRelaciones> {
+    try {
+      // Obtener el userId del localStorage
+      let userId = parseInt(localStorage.getItem('userId') || '0');
+      
+      if (userId === 0) {
+        userId = parseInt(localStorage.getItem('id_usuario') || '0');
+      }
+      if (userId === 0) {
+        userId = parseInt(localStorage.getItem('user_id') || '0');
+      }
+      if (userId === 0) {
+        userId = parseInt(localStorage.getItem('id') || '0');
+      }
+      
+      // Forzar la categoría a emprendimiento (id = 9)
+      const emprendimientoConUsuario = {
+        ...data,
+        id_usuario: userId,
+        id_categoria: CATEGORIA_EMPRENDIMIENTO_ID
+      };
+      
+      console.log('💼 Creando nuevo emprendimiento:', emprendimientoConUsuario);
+      const response = await apiClient.post('/eventos', emprendimientoConUsuario);
+      console.log('✅ Emprendimiento creado:', response.data);
+      
+      if (response.data && response.data.data) {
+        return response.data.data;
+      }
+      
+      return response.data;
+    } catch (error: any) {
+      console.error('❌ Error al crear emprendimiento:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Actualizar un emprendimiento existente
+   */
+  async actualizarEmprendimiento(id: number, data: UpdateEventoRequest): Promise<EventoConRelaciones> {
+    try {
+      // Asegurar que la categoría sea emprendimiento
+      const dataConCategoria = {
+        ...data,
+        id_categoria: CATEGORIA_EMPRENDIMIENTO_ID
+      };
+      
+      console.log(`💼 Actualizando emprendimiento ${id}:`, dataConCategoria);
+      const response = await apiClient.put(`/eventos/${id}`, dataConCategoria);
+      console.log('✅ Emprendimiento actualizado:', response.data);
+      
+      if (response.data && response.data.data) {
+        return response.data.data;
+      }
+      
+      return response.data;
+    } catch (error: any) {
+      console.error(`❌ Error al actualizar emprendimiento ${id}:`, error);
+      
+      if (error.response?.status === 403) {
+        throw new Error('No tienes permisos para actualizar este emprendimiento (solo admin)');
+      }
+      
+      throw new Error(error.response?.data?.message || error.message || 'Error al actualizar emprendimiento');
+    }
+  }
+
+  /**
+   * Eliminar un emprendimiento
+   */
+  async eliminarEmprendimiento(id: number): Promise<void> {
+    try {
+      console.log(`💼 Eliminando emprendimiento ${id}...`);
+      await apiClient.delete(`/eventos/${id}`);
+      console.log('✅ Emprendimiento eliminado exitosamente');
+    } catch (error: any) {
+      console.error(`❌ Error al eliminar emprendimiento ${id}:`, error);
+      
+      if (error.response?.status === 403) {
+        throw new Error('No tienes permisos para eliminar este emprendimiento (solo admin)');
+      }
+      
+      throw new Error(error.response?.data?.message || error.message || 'Error al eliminar emprendimiento');
+    }
+  }
+
+  /**
+   * Inscribirse a un emprendimiento
+   */
+  async inscribirseEmprendimiento(idEmprendimiento: number): Promise<any> {
+    try {
+      console.log(`💼 Inscribiéndose al emprendimiento ${idEmprendimiento}...`);
+      const response = await apiClient.post(`/eventos/${idEmprendimiento}/inscribirse`);
+      console.log('✅ Inscripción exitosa:', response.data);
+      
+      return response.data?.data || response.data;
+    } catch (error: any) {
+      console.error(`❌ Error al inscribirse al emprendimiento ${idEmprendimiento}:`, error);
+      
+      if (error.response?.status === 409) {
+        throw new Error('Ya estás inscrito en este emprendimiento');
+      }
+      
+      throw new Error(error.response?.data?.message || error.message || 'Error al inscribirse');
+    }
+  }
+
+  /**
+   * Cancelar inscripción a un emprendimiento
+   */
+  async cancelarInscripcion(idEmprendimiento: number): Promise<void> {
+    try {
+      console.log(`💼 Cancelando inscripción del emprendimiento ${idEmprendimiento}...`);
+      await apiClient.delete(`/eventos/${idEmprendimiento}/cancelar-inscripcion`);
+      console.log('✅ Inscripción cancelada');
+    } catch (error: any) {
+      console.error(`❌ Error al cancelar inscripción del emprendimiento ${idEmprendimiento}:`, error);
+      
+      if (error.response?.status === 404) {
+        throw new Error('No estás inscrito en este emprendimiento');
+      }
+      
+      throw new Error(error.response?.data?.message || error.message || 'Error al cancelar inscripción');
+    }
+  }
+
+  /**
+   * Obtener emprendimientos a los que el usuario está inscrito
+   */
+  async obtenerEmprendimientosInscritos(): Promise<EventoConRelaciones[]> {
+    try {
+      console.log('💼 Obteniendo emprendimientos inscritos...');
+      const response = await apiClient.get('/eventos/mis-eventos');
+      console.log('✅ Eventos inscritos obtenidos:', response.data);
+      
+      const eventos = response.data?.data || response.data || [];
+      
+      // Filtrar solo los que son emprendimientos
+      const emprendimientos = eventos.filter((evento: any) => 
+        evento.id_categoria === CATEGORIA_EMPRENDIMIENTO_ID
+      );
+      
+      return emprendimientos.map((evento: any) => ({
+        ...evento,
+        categoria: evento.categoria || null,
+        organizador: evento.organizador || null,
+        inscritos: evento.inscritos || [],
+        total_inscritos: evento.total_inscritos || evento.inscritos?.length || 0,
+        esta_inscrito: true
+      }));
+    } catch (error: any) {
+      console.error('❌ Error al obtener emprendimientos inscritos:', error);
+      
+      if (error.response?.status === 400 || error.response?.status === 404) {
+        console.warn('⚠️ Endpoint /eventos/mis-eventos no está disponible aún');
+        return [];
+      }
+      
+      throw error;
+    }
+  }
+
+  /**
+   * Utilidades
+   */
+  
+  estaInscrito(emprendimiento: EventoConRelaciones): boolean {
+    return emprendimiento.esta_inscrito || false;
+  }
+
+  esCreador(emprendimiento: EventoConRelaciones, idUsuario: number): boolean {
+    return emprendimiento.id_usuario === idUsuario || emprendimiento.organizador?.id_usuario === idUsuario;
+  }
+
+  formatearFecha(fecha: Date | string): string {
+    const date = typeof fecha === 'string' ? new Date(fecha) : fecha;
+    return date.toLocaleDateString('es-ES', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  }
+
+  emprendimientoPasado(fecha: Date | string): boolean {
+    const fechaEmprendimiento = typeof fecha === 'string' ? new Date(fecha) : fecha;
+    return fechaEmprendimiento < new Date();
+  }
+
+  getModalidadBadge(modalidad?: string): { color: string; label: string } {
+    switch (modalidad?.toLowerCase()) {
+      case 'presencial':
+        return { color: 'primary', label: 'Presencial' };
+      case 'virtual':
+        return { color: 'success', label: 'Virtual' };
+      case 'híbrido':
+      case 'hibrido':
+        return { color: 'info', label: 'Híbrido' };
+      default:
+        return { color: 'secondary', label: 'Sin especificar' };
+    }
   }
 }

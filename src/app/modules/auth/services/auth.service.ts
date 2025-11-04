@@ -18,17 +18,31 @@ export class AuthService {
       // Obtener el perfil del usuario y guardar sus datos
       try {
         const userProfile = await this.getCurrentUser();
-        console.log('👤 Perfil del usuario:', userProfile);
+        console.log('👤 Perfil del usuario (respuesta completa):', userProfile);
+        console.log('👤 userProfile.data:', userProfile.data);
+        console.log('👤 userProfile.data?.data:', userProfile.data?.data);
         
-        // Guardar datos del usuario en localStorage
-        if (userProfile.data) {
-          const user = userProfile.data;
-          localStorage.setItem('userId', user.id_usuario?.toString() || user.id?.toString() || '');
+        // La respuesta puede venir en diferentes formatos
+        const user = userProfile.data?.data || userProfile.data || userProfile;
+        console.log('👤 Usuario extraído:', user);
+        
+        if (user && user.id_usuario) {
+          // Guardar datos individuales (compatibilidad)
+          localStorage.setItem('userId', user.id_usuario?.toString() || '');
           localStorage.setItem('userName', user.nombre || '');
           localStorage.setItem('userEmail', user.correo || '');
           localStorage.setItem('rol', user.id_rol?.toString() || '0');
           
-          console.log('✅ Datos del usuario guardados en localStorage');
+          // Guardar objeto completo del usuario (para otros componentes)
+          localStorage.setItem('usuario', JSON.stringify(user));
+          
+          console.log('✅ Datos del usuario guardados en localStorage:');
+          console.log('   - userId:', localStorage.getItem('userId'));
+          console.log('   - userName:', localStorage.getItem('userName'));
+          console.log('   - userEmail:', localStorage.getItem('userEmail'));
+          console.log('   - rol:', localStorage.getItem('rol'));
+        } else {
+          console.error('❌ No se pudo extraer el usuario de la respuesta');
         }
       } catch (profileError) {
         console.warn('⚠️ No se pudo obtener el perfil del usuario:', profileError);
@@ -65,6 +79,7 @@ export class AuthService {
     localStorage.removeItem('userName');
     localStorage.removeItem('userEmail');
     localStorage.removeItem('rol');
+    localStorage.removeItem('usuario'); // Remover objeto completo del usuario
   }
 
   // Método para verificar si el usuario está autenticado

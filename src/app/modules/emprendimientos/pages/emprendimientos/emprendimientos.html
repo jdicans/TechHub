@@ -3,6 +3,7 @@
   <header class="header">
     <div class="header-content">
       <h1 class="title">Emprendimientos</h1>
+      <p class="subtitle">Descubre proyectos innovadores de la comunidad</p>
       <button class="btn-crear" (click)="toggleFormulario()">
         <lucide-icon name="plus"></lucide-icon>
         Crear Emprendimiento
@@ -14,12 +15,12 @@
   @if (mostrarFormulario) {
     <div class="formulario-emprendimiento">
       <div class="formulario-header">
-        <h2>Nuevo Emprendimiento</h2>
+        <h2>{{ emprendimientoEditando ? 'Editar' : 'Nuevo' }} Emprendimiento</h2>
       </div>
-      <form (ngSubmit)="crearEmprendimiento()">
+      <form (ngSubmit)="emprendimientoEditando ? actualizarEmprendimiento() : crearEmprendimiento()">
         <div class="form-row">
           <div class="form-group">
-            <label for="nombre">Nombre *</label>
+            <label for="nombre">Nombre del Emprendimiento *</label>
             <input
               type="text"
               id="nombre"
@@ -39,242 +40,45 @@
               [(ngModel)]="nuevoEmprendimiento.descripcion"
               name="descripcion"
               required
-              rows="3"
-              placeholder="Descripción breve del emprendimiento"
+              rows="4"
+              placeholder="Describa su emprendimiento, qué problema resuelve y su propuesta de valor"
             ></textarea>
           </div>
         </div>
 
         <div class="form-row">
           <div class="form-group">
-            <label for="categoria">Categoría *</label>
-            <select
-              id="categoria"
-              [(ngModel)]="nuevoEmprendimiento.categoria"
-              name="categoria"
-              required
-            >
-              <option value="">Seleccione una categoría</option>
-              <option value="Tecnología">Tecnología</option>
-              <option value="Salud">Salud</option>
-              <option value="Educación">Educación</option>
-              <option value="Fintech">Fintech</option>
-              <option value="E-commerce">E-commerce</option>
-              <option value="Sostenibilidad">Sostenibilidad</option>
-              <option value="Agricultura">Agricultura</option>
-              <option value="Logística">Logística</option>
-              <option value="Entretenimiento">Entretenimiento</option>
-              <option value="Otro">Otro</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="etapa">Etapa *</label>
-            <select
-              id="etapa"
-              [(ngModel)]="nuevoEmprendimiento.etapa"
-              name="etapa"
-              required
-            >
-              <option value="">Seleccione una etapa</option>
-              <option value="Idea">Idea</option>
-              <option value="Prototipo">Prototipo</option>
-              <option value="MVP">MVP</option>
-              <option value="Crecimiento">Crecimiento</option>
-              <option value="Escalamiento">Escalamiento</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label for="descripcionDetallada">Descripción Detallada *</label>
-            <textarea
-              id="descripcionDetallada"
-              [(ngModel)]="nuevoEmprendimiento.descripcionDetallada"
-              name="descripcionDetallada"
-              required
-              rows="5"
-              placeholder="Descripción completa del emprendimiento"
-            ></textarea>
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label for="problema">Problema que Resuelve *</label>
-            <textarea
-              id="problema"
-              [(ngModel)]="nuevoEmprendimiento.problema"
-              name="problema"
-              required
-              rows="3"
-              placeholder="¿Qué problema resuelve tu emprendimiento?"
-            ></textarea>
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label for="solucion">Solución *</label>
-            <textarea
-              id="solucion"
-              [(ngModel)]="nuevoEmprendimiento.solucion"
-              name="solucion"
-              required
-              rows="3"
-              placeholder="¿Cómo lo resuelve?"
-            ></textarea>
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label for="mercadoObjetivo">Mercado Objetivo *</label>
-            <textarea
-              id="mercadoObjetivo"
-              [(ngModel)]="nuevoEmprendimiento.mercadoObjetivo"
-              name="mercadoObjetivo"
-              required
-              rows="3"
-              placeholder="¿A quién va dirigido?"
-            ></textarea>
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label for="propuestaValor">Propuesta de Valor *</label>
-            <textarea
-              id="propuestaValor"
-              [(ngModel)]="nuevoEmprendimiento.propuestaValor"
-              name="propuestaValor"
-              required
-              rows="3"
-              placeholder="¿Qué te hace único?"
-            ></textarea>
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label for="equipoRequerido">Equipo Requerido</label>
+            <label for="lugar">Ubicación</label>
             <input
               type="text"
-              id="equipoRequerido"
-              [(ngModel)]="nuevoEmprendimiento.equipoRequerido"
-              name="equipoRequerido"
-              placeholder="Ej: Desarrollador, Diseñador, Marketing (separados por comas)"
-            />
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label for="tecnologias">Tecnologías</label>
-            <input
-              type="text"
-              id="tecnologias"
-              [(ngModel)]="nuevoEmprendimiento.tecnologias"
-              name="tecnologias"
-              placeholder="Ej: React, Node.js, MongoDB (separados por comas)"
-            />
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group-checkbox">
-            <input
-              type="checkbox"
-              id="buscoInversion"
-              [(ngModel)]="nuevoEmprendimiento.buscoInversion"
-              name="buscoInversion"
-            />
-            <label for="buscoInversion">Busco Inversión</label>
-          </div>
-
-          <div class="form-group-checkbox">
-            <input
-              type="checkbox"
-              id="buscoColaboradores"
-              [(ngModel)]="nuevoEmprendimiento.buscoColaboradores"
-              name="buscoColaboradores"
-            />
-            <label for="buscoColaboradores">Busco Colaboradores</label>
-          </div>
-        </div>
-
-        @if (nuevoEmprendimiento.buscoInversion) {
-          <div class="form-row">
-            <div class="form-group">
-              <label for="montoInversion">Monto de Inversión</label>
-              <input
-                type="text"
-                id="montoInversion"
-                [(ngModel)]="nuevoEmprendimiento.montoInversion"
-                name="montoInversion"
-                placeholder="Ej: $50,000 - $100,000"
-              />
-            </div>
-          </div>
-        }
-
-        <div class="form-row">
-          <div class="form-group">
-            <label for="website">Sitio Web</label>
-            <input
-              type="url"
-              id="website"
-              [(ngModel)]="nuevoEmprendimiento.website"
-              name="website"
-              placeholder="https://ejemplo.com"
-            />
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label for="email">Email de Contacto</label>
-            <input
-              type="email"
-              id="email"
-              [(ngModel)]="nuevoEmprendimiento.email"
-              name="email"
-              placeholder="contacto@ejemplo.com"
+              id="lugar"
+              [(ngModel)]="nuevoEmprendimiento.lugar"
+              name="lugar"
+              placeholder="Ciudad o ubicación del emprendimiento"
             />
           </div>
 
           <div class="form-group">
-            <label for="telefono">Teléfono</label>
-            <input
-              type="tel"
-              id="telefono"
-              [(ngModel)]="nuevoEmprendimiento.telefono"
-              name="telefono"
-              placeholder="+56 9 1234 5678"
-            />
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label for="imagen">URL de Imagen</label>
-            <input
-              type="url"
-              id="imagen"
-              [(ngModel)]="nuevoEmprendimiento.imagen"
-              name="imagen"
-              placeholder="https://ejemplo.com/imagen.jpg"
-            />
+            <label for="modalidad">Modalidad</label>
+            <select
+              id="modalidad"
+              [(ngModel)]="nuevoEmprendimiento.modalidad"
+              name="modalidad"
+            >
+              <option value="">Seleccione una modalidad</option>
+              <option value="Presencial">Presencial</option>
+              <option value="Virtual">Virtual</option>
+              <option value="Híbrido">Híbrido</option>
+            </select>
           </div>
         </div>
 
         <div class="form-actions">
-          <button type="button" class="btn-cancelar" (click)="toggleFormulario()">
+          <button type="button" class="btn-cancelar" (click)="cancelarFormulario()">
             Cancelar
           </button>
           <button type="submit" class="btn-submit">
-            Crear Emprendimiento
+            {{ emprendimientoEditando ? 'Actualizar' : 'Crear' }} Emprendimiento
           </button>
         </div>
       </form>
@@ -290,175 +94,114 @@
           <input
             type="text"
             id="busqueda"
-            [(ngModel)]="filtro.busqueda"
+            [(ngModel)]="filtros.busqueda"
             (ngModelChange)="aplicarFiltros()"
             placeholder="Buscar emprendimientos..."
           />
         </div>
 
         <div class="filtro-group">
-          <label for="filtroCategoria">Categoría</label>
+          <label for="filtroModalidad">Modalidad</label>
           <select
-            id="filtroCategoria"
-            [(ngModel)]="filtro.categoria"
+            id="filtroModalidad"
+            [(ngModel)]="filtros.modalidad"
             (ngModelChange)="aplicarFiltros()"
           >
-            <option value="">Todas las categorías</option>
-            <option value="Tecnología">Tecnología</option>
-            <option value="Salud">Salud</option>
-            <option value="Educación">Educación</option>
-            <option value="Fintech">Fintech</option>
-            <option value="E-commerce">E-commerce</option>
-            <option value="Sostenibilidad">Sostenibilidad</option>
-            <option value="Agricultura">Agricultura</option>
-            <option value="Logística">Logística</option>
-            <option value="Entretenimiento">Entretenimiento</option>
-            <option value="Otro">Otro</option>
+            <option value="">Todas las modalidades</option>
+            <option value="Presencial">Presencial</option>
+            <option value="Virtual">Virtual</option>
+            <option value="Híbrido">Híbrido</option>
           </select>
         </div>
 
         <div class="filtro-group">
-          <label for="filtroEtapa">Etapa</label>
+          <label for="ordenarPor">Ordenar por</label>
           <select
-            id="filtroEtapa"
-            [(ngModel)]="filtro.etapa"
+            id="ordenarPor"
+            [(ngModel)]="filtros.ordenarPor"
             (ngModelChange)="aplicarFiltros()"
           >
-            <option value="">Todas las etapas</option>
-            <option value="Idea">Idea</option>
-            <option value="Prototipo">Prototipo</option>
-            <option value="MVP">MVP</option>
-            <option value="Crecimiento">Crecimiento</option>
-            <option value="Escalamiento">Escalamiento</option>
+            <option value="recientes">Más recientes</option>
+            <option value="antiguos">Más antiguos</option>
+            <option value="nombre">Nombre (A-Z)</option>
           </select>
         </div>
 
-        <div class="filtro-group-checkbox">
-          <input
-            type="checkbox"
-            id="filtroBuscoInversion"
-            [(ngModel)]="filtro.buscoInversion"
-            (ngModelChange)="aplicarFiltros()"
-          />
-          <label for="filtroBuscoInversion">Busco Inversión</label>
-        </div>
-
-        <div class="filtro-group-checkbox">
-          <input
-            type="checkbox"
-            id="filtroBuscoColaboradores"
-            [(ngModel)]="filtro.buscoColaboradores"
-            (ngModelChange)="aplicarFiltros()"
-          />
-          <label for="filtroBuscoColaboradores">Busco Colaboradores</label>
-        </div>
-
         <button class="btn-limpiar" (click)="limpiarFiltros()">
+          <lucide-icon name="x"></lucide-icon>
           Limpiar Filtros
         </button>
       </div>
     </div>
   </section>
 
-  <!-- Filtros -->
-  <app-filters
-    [categories]="categorias"
-    [showSearch]="true"
-    [showCategoryFilter]="true"
-    [showSortOptions]="true"
-    (filterChange)="onFiltrosChange($event)"
-  ></app-filters>
-
   <!-- Emprendimientos Grid -->
-  @if (emprendimientosPaginados.length > 0) {
+  @if (cargando) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Cargando emprendimientos...</p>
+    </div>
+  } @else if (emprendimientosPaginados.length > 0) {
     <div class="emprendimientos-grid">
-      @for (emprendimiento of emprendimientosPaginados; track emprendimiento.id) {
-        <article class="emprendimiento-card">
-            <div class="card-image">
-              @if (emprendimiento.imagen) {
-                <img [src]="emprendimiento.imagen" [alt]="emprendimiento.nombre" />
-              } @else {
-                <div class="placeholder-image">
-                  <span>Sin imagen</span>
-                </div>
+      @for (emprendimiento of emprendimientosPaginados; track emprendimiento.id_evento) {
+        <article class="emprendimiento-card" (click)="verDetalle(emprendimiento)">
+          <div class="card-header">
+            <div class="card-badge-container">
+              @if (emprendimiento.modalidad) {
+                <span class="badge-modalidad" [class.presencial]="emprendimiento.modalidad === 'Presencial'" 
+                                               [class.virtual]="emprendimiento.modalidad === 'Virtual'"
+                                               [class.hibrido]="emprendimiento.modalidad === 'Híbrido'">
+                  <lucide-icon name="monitor"></lucide-icon>
+                  {{ emprendimiento.modalidad }}
+                </span>
               }
-
-              <button
-                class="btn-like"
-                [class.liked]="tieneLike(emprendimiento.id)"
-                (click)="toggleLike(emprendimiento.id)"
-              >
-                <lucide-icon name="heart"></lucide-icon>
-              </button>
             </div>
-
-            <div class="card-content">
-              <div class="card-header">
-                <h3 class="card-title">{{ emprendimiento.nombre }}</h3>
-                <div class="badges">
-                  <span class="badge badge-categoria">{{ emprendimiento.categoria }}</span>
-                  <span class="badge badge-etapa">{{ emprendimiento.etapa }}</span>
-                </div>
-              </div>
-
-              <p class="card-descripcion">{{ emprendimiento.descripcion }}</p>
-
-              <div class="card-creator">
-                <div class="creator-info">
-                  @if (emprendimiento.creador.avatar) {
-                    <img
-                      class="creator-avatar"
-                      [src]="emprendimiento.creador.avatar"
-                      [alt]="emprendimiento.creador.nombre"
-                    />
-                  } @else {
-                    <div class="creator-avatar-placeholder">
-                      {{ emprendimiento.creador.nombre.charAt(0) || 'U' }}
-                    </div>
-                  }
-                  <span class="creator-nombre">{{ emprendimiento.creador.nombre || 'Usuario' }}</span>
-                </div>
-              </div>
-
-              @if (emprendimiento.buscoInversion || emprendimiento.buscoColaboradores) {
-                <div class="card-badges">
-                  @if (emprendimiento.buscoInversion) {
-                    <span class="badge badge-inversion">Busco Inversión</span>
-                  }
-                  @if (emprendimiento.buscoColaboradores) {
-                    <span class="badge badge-colaboradores">Busco Colaboradores</span>
-                  }
-                </div>
-              }
-
-              @if (emprendimiento.tecnologias && emprendimiento.tecnologias.length > 0) {
-                <div class="card-tecnologias">
-                  @for (tech of emprendimiento.tecnologias.slice(0, 3); track tech) {
-                    <span class="tech-tag">{{ tech }}</span>
-                  }
-                  @if (emprendimiento.tecnologias.length > 3) {
-                    <span class="tech-tag-more">+{{ emprendimiento.tecnologias.length - 3 }}</span>
-                  }
-                </div>
-              }
-
-              <div class="card-stats">
-                <span class="stat">
-                  <lucide-icon name="heart"></lucide-icon>
-                  {{ emprendimiento.likes || 0 }}
-                </span>
-                <span class="stat">
-                  <lucide-icon name="eye"></lucide-icon>
-                  {{ emprendimiento.vistas || 0 }}
-                </span>
-              </div>
-
-              <div class="card-actions">
-                <button class="btn-detalle" (click)="verDetalle(emprendimiento)">
-                  Ver Detalle
+            @if (emprendimiento.id_usuario === usuarioActualId) {
+              <div class="card-actions-header">
+                <button class="btn-icon btn-editar" (click)="editarEmprendimiento(emprendimiento); $event.stopPropagation()" title="Editar">
+                  <lucide-icon name="edit"></lucide-icon>
+                </button>
+                <button class="btn-icon btn-eliminar" (click)="eliminarEmprendimiento(emprendimiento.id_evento!); $event.stopPropagation()" title="Eliminar">
+                  <lucide-icon name="trash-2"></lucide-icon>
                 </button>
               </div>
-            </div>
+            }
+          </div>
+
+          <div class="card-body">
+            <h3 class="card-title">{{ emprendimiento.nombre }}</h3>
+            <p class="card-descripcion">{{ emprendimiento.descripcion }}</p>
+
+            @if (emprendimiento.lugar) {
+              <div class="card-location">
+                <lucide-icon name="map-pin"></lucide-icon>
+                <span>{{ emprendimiento.lugar }}</span>
+              </div>
+            }
+          </div>
+
+          <div class="card-footer">
+            @if (emprendimiento.organizador) {
+              <div class="card-creator">
+                @if (emprendimiento.organizador.foto_perfil) {
+                  <img
+                    class="creator-avatar"
+                    [src]="emprendimiento.organizador.foto_perfil"
+                    [alt]="emprendimiento.organizador.nombre"
+                  />
+                } @else {
+                  <div class="creator-avatar-placeholder">
+                    {{ emprendimiento.organizador.nombre.charAt(0) || 'U' }}
+                  </div>
+                }
+                <span class="creator-nombre">{{ emprendimiento.organizador.nombre }} {{ emprendimiento.organizador.apellido }}</span>
+              </div>
+            }
+
+            <button class="btn-ver-mas" (click)="verDetalle(emprendimiento); $event.stopPropagation()">
+              <lucide-icon name="arrow-right"></lucide-icon>
+            </button>
+          </div>
         </article>
       }
     </div>
@@ -473,7 +216,15 @@
     ></app-pagination>
   } @else {
     <div class="empty-state">
-      <p>No se encontraron emprendimientos con los filtros aplicados.</p>
+      <div class="empty-icon">
+        <lucide-icon name="lightbulb"></lucide-icon>
+      </div>
+      <h3>No hay emprendimientos disponibles</h3>
+      <p class="empty-state-subtitle">Sé el primero en compartir tu idea innovadora con la comunidad</p>
+      <button class="btn-crear-empty" (click)="toggleFormulario()">
+        <lucide-icon name="plus"></lucide-icon>
+        Crear Primer Emprendimiento
+      </button>
     </div>
   }
 
@@ -487,153 +238,87 @@
 
         <div class="modal-content">
           <div class="modal-header">
-            @if (emprendimientoSeleccionado.imagen) {
-              <img
-                class="modal-imagen"
-                [src]="emprendimientoSeleccionado.imagen"
-                [alt]="emprendimientoSeleccionado.nombre"
-              />
-            }
-
             <h2 class="modal-title">{{ emprendimientoSeleccionado.nombre }}</h2>
-
-            <div class="modal-badges">
-              <span class="badge badge-categoria">{{ emprendimientoSeleccionado.categoria }}</span>
-              <span class="badge badge-etapa">{{ emprendimientoSeleccionado.etapa }}</span>
-              @if (emprendimientoSeleccionado.buscoInversion) {
-                <span class="badge badge-inversion">Busco Inversión</span>
-              }
-              @if (emprendimientoSeleccionado.buscoColaboradores) {
-                <span class="badge badge-colaboradores">Busco Colaboradores</span>
-              }
-            </div>
-
-            <div class="modal-creator">
-              @if (emprendimientoSeleccionado.creador.avatar) {
-                <img
-                  class="creator-avatar"
-                  [src]="emprendimientoSeleccionado.creador.avatar"
-                  [alt]="emprendimientoSeleccionado.creador.nombre"
-                />
-              } @else {
-                <div class="creator-avatar-placeholder">
-                  {{ emprendimientoSeleccionado.creador.nombre.charAt(0) || 'U' }}
-                </div>
-              }
-              <div class="creator-details">
-                <span class="creator-nombre">{{ emprendimientoSeleccionado.creador.nombre || 'Usuario' }}</span>
-                <span class="fecha-creacion">{{ emprendimientoSeleccionado.createdAt | date: 'dd/MM/yyyy' }}</span>
-              </div>
-            </div>
-
-            <div class="modal-stats">
-              <span class="stat">
-                <lucide-icon name="heart"></lucide-icon>
-                {{ emprendimientoSeleccionado.likes || 0 }} likes
+            @if (emprendimientoSeleccionado.modalidad) {
+              <span class="badge-modalidad" 
+                    [class.presencial]="emprendimientoSeleccionado.modalidad === 'Presencial'"
+                    [class.virtual]="emprendimientoSeleccionado.modalidad === 'Virtual'"
+                    [class.hibrido]="emprendimientoSeleccionado.modalidad === 'Híbrido'">
+                <lucide-icon name="monitor"></lucide-icon>
+                {{ emprendimientoSeleccionado.modalidad }}
               </span>
-              <span class="stat">
-                <lucide-icon name="eye"></lucide-icon>
-                {{ emprendimientoSeleccionado.vistas || 0 }} vistas
-              </span>
-            </div>
+            }
           </div>
 
           <div class="modal-body">
             <section class="detalle-section">
               <h3>Descripción</h3>
-              <p>{{ emprendimientoSeleccionado.descripcionDetallada || emprendimientoSeleccionado.descripcion }}</p>
+              <p>{{ emprendimientoSeleccionado.descripcion }}</p>
             </section>
 
-            <section class="detalle-section">
-              <h3>Problema que Resuelve</h3>
-              <p>{{ emprendimientoSeleccionado.problema }}</p>
-            </section>
-
-            <section class="detalle-section">
-              <h3>Solución</h3>
-              <p>{{ emprendimientoSeleccionado.solucion }}</p>
-            </section>
-
-            <section class="detalle-section">
-              <h3>Mercado Objetivo</h3>
-              <p>{{ emprendimientoSeleccionado.mercadoObjetivo }}</p>
-            </section>
-
-            <section class="detalle-section">
-              <h3>Propuesta de Valor</h3>
-              <p>{{ emprendimientoSeleccionado.propuestaValor }}</p>
-            </section>
-
-            @if (emprendimientoSeleccionado.tecnologias && emprendimientoSeleccionado.tecnologias.length > 0) {
+            @if (emprendimientoSeleccionado.lugar || emprendimientoSeleccionado.modalidad) {
               <section class="detalle-section">
-                <h3>Tecnologías</h3>
-                <div class="tecnologias-list">
-                  @for (tech of emprendimientoSeleccionado.tecnologias; track tech) {
-                    <span class="tech-tag">{{ tech }}</span>
+                <h3>Información del Emprendimiento</h3>
+                <div class="evento-info">
+                  @if (emprendimientoSeleccionado.lugar) {
+                    <div class="info-item">
+                      <lucide-icon name="map-pin"></lucide-icon>
+                      <div>
+                        <span class="info-label">Ubicación:</span>
+                        <span class="info-value">{{ emprendimientoSeleccionado.lugar }}</span>
+                      </div>
+                    </div>
+                  }
+                  @if (emprendimientoSeleccionado.modalidad) {
+                    <div class="info-item">
+                      <lucide-icon name="monitor"></lucide-icon>
+                      <div>
+                        <span class="info-label">Modalidad:</span>
+                        <span class="info-value">{{ emprendimientoSeleccionado.modalidad }}</span>
+                      </div>
+                    </div>
                   }
                 </div>
               </section>
             }
 
-            @if (emprendimientoSeleccionado.equipoRequerido && emprendimientoSeleccionado.equipoRequerido.length > 0) {
+            @if (emprendimientoSeleccionado.organizador) {
               <section class="detalle-section">
-                <h3>Equipo Requerido</h3>
-                <div class="equipo-list">
-                  @for (rol of emprendimientoSeleccionado.equipoRequerido; track rol) {
-                    <span class="equipo-tag">{{ rol }}</span>
-                  }
-                </div>
-              </section>
-            }
-
-            @if (emprendimientoSeleccionado.buscoInversion && emprendimientoSeleccionado.montoInversion) {
-              <section class="detalle-section">
-                <h3>Monto de Inversión</h3>
-                <p>{{ emprendimientoSeleccionado.montoInversion }}</p>
-              </section>
-            }
-
-            @if (emprendimientoSeleccionado.website || emprendimientoSeleccionado.email || emprendimientoSeleccionado.telefono) {
-              <section class="detalle-section">
-                <h3>Información de Contacto</h3>
-                <div class="contacto-info">
-                  @if (emprendimientoSeleccionado.website) {
-                    <div class="contacto-item">
-                      <span class="contacto-label">Sitio Web:</span>
-                      <a [href]="emprendimientoSeleccionado.website" target="_blank" rel="noopener noreferrer">
-                        {{ emprendimientoSeleccionado.website }}
-                      </a>
+                <h3>Organizador</h3>
+                <div class="organizador-info">
+                  @if (emprendimientoSeleccionado.organizador.foto_perfil) {
+                    <img
+                      class="organizador-avatar"
+                      [src]="emprendimientoSeleccionado.organizador.foto_perfil"
+                      [alt]="emprendimientoSeleccionado.organizador.nombre"
+                    />
+                  } @else {
+                    <div class="organizador-avatar-placeholder">
+                      {{ emprendimientoSeleccionado.organizador.nombre.charAt(0) }}
                     </div>
                   }
-                  @if (emprendimientoSeleccionado.email) {
-                    <div class="contacto-item">
-                      <span class="contacto-label">Email:</span>
-                      <a [href]="'mailto:' + emprendimientoSeleccionado.email">
-                        {{ emprendimientoSeleccionado.email }}
-                      </a>
-                    </div>
-                  }
-                  @if (emprendimientoSeleccionado.telefono) {
-                    <div class="contacto-item">
-                      <span class="contacto-label">Teléfono:</span>
-                      <a [href]="'tel:' + emprendimientoSeleccionado.telefono">
-                        {{ emprendimientoSeleccionado.telefono }}
-                      </a>
-                    </div>
-                  }
+                  <div class="organizador-details">
+                    <span class="organizador-nombre">{{ emprendimientoSeleccionado.organizador.nombre }} {{ emprendimientoSeleccionado.organizador.apellido }}</span>
+                  </div>
                 </div>
               </section>
             }
           </div>
 
           <div class="modal-footer">
-            <button
-              class="btn-like-modal"
-              [class.liked]="tieneLike(emprendimientoSeleccionado.id)"
-              (click)="toggleLike(emprendimientoSeleccionado.id)"
-            >
-              <lucide-icon name="heart"></lucide-icon>
-              {{ tieneLike(emprendimientoSeleccionado.id) ? 'Me gusta' : 'Me gusta' }}
+            @if (emprendimientoSeleccionado.id_usuario === usuarioActualId) {
+              <button class="btn-editar-modal" (click)="editarEmprendimiento(emprendimientoSeleccionado); cerrarDetalle()">
+                <lucide-icon name="edit"></lucide-icon>
+                Editar Emprendimiento
+              </button>
+              <button class="btn-eliminar-modal" (click)="eliminarEmprendimiento(emprendimientoSeleccionado.id_evento!); cerrarDetalle()">
+                <lucide-icon name="trash-2"></lucide-icon>
+                Eliminar
+              </button>
+            }
+            <button class="btn-cerrar-modal" (click)="cerrarDetalle()">
+              <lucide-icon name="x"></lucide-icon>
+              Cerrar
             </button>
           </div>
         </div>

@@ -1,176 +1,367 @@
 <div class="blog-container">
+  <!-- Header con gradiente azul moderno -->
   <header class="blog-header">
-    <h1>Blog</h1>
-    <div class="search-container">
-      <button class="btn-crear-post" (click)="toggleFormulario()">
+    <div class="header-content">
+      <div class="header-title-section">
+        <lucide-icon name="book-open" class="header-icon"></lucide-icon>
+        <h1>Blog Tecnológico</h1>
+      </div>
+      <button class="btn-crear" (click)="toggleFormulario()" *ngIf="usuarioActual">
         <lucide-icon name="plus"></lucide-icon>
-        Crear Post
+        <span>Nueva Publicación</span>
       </button>
     </div>
   </header>
 
+  <!-- Filtros -->
+  <div class="filtros-container">
+    <div class="filtro-busqueda">
+      <lucide-icon name="search"></lucide-icon>
+      <input 
+        type="text" 
+        [(ngModel)]="busqueda" 
+        (input)="onBusquedaChange(busqueda)"
+        placeholder="Buscar publicaciones..."
+        class="input-busqueda"
+      />
+    </div>
+    
+    <div class="filtro-categoria">
+      <lucide-icon name="filter"></lucide-icon>
+      <select [(ngModel)]="categoriaFiltro" (change)="onCategoriaChange(categoriaFiltro)" class="select-categoria">
+        <option [value]="null">Todas las categorías</option>
+        <option *ngFor="let categoria of categorias" [value]="categoria.id_categoria">
+          {{ categoria.nombre }}
+        </option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Formulario de nueva publicación -->
   @if (mostrarFormulario) {
-    <div class="formulario-post">
-      <h2>Crear Nuevo Post</h2>
-      <form (submit)="$event.preventDefault(); crearPost()">
-        <div class="form-group">
-          <input type="text" [(ngModel)]="nuevoPost.titulo" name="titulo" placeholder="Título" class="form-input" required>
+    <div class="modal-form-backdrop" (click)="toggleFormulario()">
+      <div class="modal-form-content" (click)="$event.stopPropagation()">
+        <div class="modal-form-header">
+          <h2>
+            <lucide-icon name="file-text"></lucide-icon>
+            Nueva Publicación
+          </h2>
+          <button class="btn-close-form" (click)="toggleFormulario()">
+            <lucide-icon name="x"></lucide-icon>
+          </button>
         </div>
-        <div class="form-group">
-          <input type="text" [(ngModel)]="nuevoPost.resumen" name="resumen" placeholder="Resumen" class="form-input">
-        </div>
-        <div class="form-group">
-          <textarea [(ngModel)]="nuevoPost.contenido" name="contenido" placeholder="Contenido" class="form-textarea" rows="6" required></textarea>
-        </div>
-        <div class="form-group">
-          <input type="text" [(ngModel)]="nuevoPost.categoria" name="categoria" placeholder="Categoría" class="form-input">
-        </div>
-        <div class="form-group">
-          <input type="text" [(ngModel)]="nuevoPost.tags" name="tags" placeholder="Tags (separados por comas)" class="form-input">
-        </div>
-        <div class="form-group">
-          <input type="text" [(ngModel)]="nuevoPost.imagen" name="imagen" placeholder="URL de imagen" class="form-input">
-        </div>
-        <div class="form-actions">
-          <button type="submit" class="btn-submit">Publicar</button>
-          <button type="button" class="btn-cancel" (click)="toggleFormulario()">Cancelar</button>
-        </div>
-      </form>
+        
+        <form (submit)="$event.preventDefault(); crearPublicacion()">
+          <div class="form-group">
+            <label>Título *</label>
+            <input 
+              type="text" 
+              [(ngModel)]="nuevoPost.titulo" 
+              name="titulo" 
+              placeholder="Título de la publicación" 
+              class="form-input" 
+              required
+            />
+          </div>
+          
+          <div class="form-group">
+            <label>Contenido *</label>
+            <textarea 
+              [(ngModel)]="nuevoPost.contenido" 
+              name="contenido" 
+              placeholder="Escribe el contenido de tu publicación..." 
+              class="form-textarea" 
+              rows="8" 
+              required
+            ></textarea>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>Categoría *</label>
+              <select [(ngModel)]="nuevoPost.id_categoria" name="categoria" class="form-select" required>
+                <option [value]="0" disabled>Selecciona una categoría</option>
+                <option *ngFor="let categoria of categorias" [value]="categoria.id_categoria">
+                  {{ categoria.nombre }}
+                </option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label>Tipo</label>
+              <select [(ngModel)]="nuevoPost.tipo" name="tipo" class="form-select">
+                <option value="articulo">Artículo</option>
+                <option value="pregunta">Pregunta</option>
+                <option value="recurso">Recurso</option>
+                <option value="tutorial">Tutorial</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label>Etiquetas</label>
+            <div class="etiquetas-selector">
+              <div *ngFor="let etiqueta of etiquetas" class="etiqueta-checkbox">
+                <input 
+                  type="checkbox" 
+                  [id]="'etiqueta-' + etiqueta.id_etiqueta"
+                  [value]="etiqueta.id_etiqueta"
+                  (change)="onEtiquetaChange($event, etiqueta.id_etiqueta)"
+                />
+                <label [for]="'etiqueta-' + etiqueta.id_etiqueta">{{ etiqueta.nombre }}</label>
+              </div>
+            </div>
+          </div>
+          
+          <div class="form-actions">
+            <button type="submit" class="btn-submit" [disabled]="cargando">
+              <lucide-icon [name]="cargando ? 'loader' : 'check'"></lucide-icon>
+              {{ cargando ? 'Publicando...' : 'Publicar' }}
+            </button>
+            <button type="button" class="btn-cancel" (click)="toggleFormulario()">
+              <lucide-icon name="x"></lucide-icon>
+              Cancelar
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   }
 
-  <!-- Filtros -->
-  <app-filters
-    [categories]="categorias"
-    [showSearch]="true"
-    [showCategoryFilter]="true"
-    [showSortOptions]="true"
-    (filterChange)="onFiltrosChange($event)"
-  ></app-filters>
-
-  <div class="posts-grid">
-    @for (post of postsPaginados; track post.id) {
-      <article class="post-card" (click)="verPost(post)">
-        <div class="post-image">
-          <img [src]="post.imagen" [alt]="post.titulo">
-          <span class="category-tag">{{ post.categoria }}</span>
-        </div>
-        <div class="post-content">
-          <h2 class="post-title">{{ post.titulo }}</h2>
-          <p class="post-excerpt">{{ post.resumen }}</p>
-          <div class="post-meta">
-            <div class="author-info">
-              <span class="author-avatar">{{ post.autor.avatar }}</span>
-              <span class="author-name">{{ post.autor.nombre }}</span>
+  <!-- Grid de publicaciones -->
+  <div class="publicaciones-grid">
+    @if (cargando) {
+      <div class="loading-state">
+        <lucide-icon name="loader" class="spinner"></lucide-icon>
+        <p>Cargando publicaciones...</p>
+      </div>
+    } @else if (publicacionesFiltradas.length === 0 && publicaciones.length === 0) {
+      <div class="empty-state">
+        <lucide-icon name="inbox"></lucide-icon>
+        <h3>No hay publicaciones disponibles</h3>
+        <p>{{ usuarioActual ? 'Sé el primero en publicar un artículo' : 'Inicia sesión para ver y crear publicaciones' }}</p>
+        @if (usuarioActual) {
+          <button class="btn-crear" (click)="toggleFormulario()">
+            <lucide-icon name="plus"></lucide-icon>
+            <span>Crear Primera Publicación</span>
+          </button>
+        }
+      </div>
+    } @else if (publicacionesFiltradas.length === 0) {
+      <div class="empty-state">
+        <lucide-icon name="inbox"></lucide-icon>
+        <h3>No se encontraron resultados</h3>
+        <p>No hay publicaciones que coincidan con los filtros seleccionados</p>
+      </div>
+    } @else {
+      @for (publicacion of publicacionesFiltradas; track publicacion.id_publicacion) {
+        <article class="publicacion-card" (click)="verPublicacion(publicacion)">
+          <div class="publicacion-header">
+            <span class="badge-categoria">{{ getNombreCategoria(publicacion.id_categoria) }}</span>
+            @if (publicacion.tipo) {
+              <span class="badge-tipo">{{ publicacion.tipo }}</span>
+            }
+          </div>
+          
+          <h2 class="publicacion-titulo">{{ publicacion.titulo }}</h2>
+          <p class="publicacion-excerpt">{{ publicacion.contenido | truncate:150 }}</p>
+          
+          <div class="publicacion-meta">
+            <div class="autor-info">
+              <div class="avatar">
+                @if (publicacion.usuario?.foto_perfil) {
+                  <img [src]="publicacion.usuario!.foto_perfil" [alt]="publicacion.usuario!.nombre" />
+                } @else {
+                  <lucide-icon name="user"></lucide-icon>
+                }
+              </div>
+              <div class="autor-details">
+                <span class="autor-nombre">{{ publicacion.usuario?.nombre }} {{ publicacion.usuario?.apellido }}</span>
+                <span class="fecha">{{ formatearFecha(publicacion.fecha_creacion) }}</span>
+              </div>
             </div>
-            <span class="post-date">{{ formatearFecha(post.fecha) }}</span>
           </div>
-          <div class="post-stats">
-            <span class="stat">
-              <lucide-icon name="heart"></lucide-icon>
-              {{ post.likes }}
-            </span>
-            <span class="stat">
-              <lucide-icon name="message-circle"></lucide-icon>
-              {{ post.comentariosList.length }}
-            </span>
-            <span class="stat">
-              <lucide-icon name="eye"></lucide-icon>
-              {{ post.vistas }}
-            </span>
+          
+          <div class="publicacion-footer">
+            @if (publicacion.etiquetas && publicacion.etiquetas.length > 0) {
+              <div class="etiquetas-list">
+                @for (etiqueta of publicacion.etiquetas.slice(0, 3); track etiqueta.id_etiqueta) {
+                  <span class="etiqueta-tag">
+                    <lucide-icon name="tag"></lucide-icon>
+                    {{ etiqueta.nombre }}
+                  </span>
+                }
+                @if (publicacion.etiquetas.length > 3) {
+                  <span class="etiqueta-tag">+{{ publicacion.etiquetas.length - 3 }}</span>
+                }
+              </div>
+            }
+            
+            <div class="stats">
+              <span class="stat">
+                <lucide-icon name="message-square"></lucide-icon>
+                {{ getComentariosCount(publicacion.id_publicacion) }}
+              </span>
+            </div>
           </div>
-        </div>
-      </article>
+        </article>
+      }
     }
   </div>
 
-  <!-- Paginación -->
-  @if (postsPaginados.length > 0) {
-    <app-pagination
-      [currentPage]="paginaActual"
-      [totalItems]="totalItems"
-      [itemsPerPage]="itemsPorPagina"
-      [maxVisiblePages]="5"
-      (pageChange)="onPaginaChange($event)"
-    ></app-pagination>
-  }
-
-  @if (postSeleccionado) {
-    <div class="modal-backdrop" (click)="cerrarPost()">
+  <!-- Modal de detalle de publicación -->
+  @if (publicacionSeleccionada) {
+    <div class="modal-backdrop" (click)="cerrarPublicacion()">
       <div class="modal-content" (click)="$event.stopPropagation()">
-        <button class="close-button" (click)="cerrarPost()">
+        <button class="btn-cerrar-modal" (click)="cerrarPublicacion()">
           <lucide-icon name="x"></lucide-icon>
         </button>
-        <article class="post-full">
-          <div class="post-full-header">
-            <span class="category-tag">{{ postSeleccionado.categoria }}</span>
-            <h1>{{ postSeleccionado.titulo }}</h1>
-            <div class="post-full-meta">
-              <div class="author-info">
-                <span class="author-avatar-large">{{ postSeleccionado.autor.avatar }}</span>
-                <div class="author-details">
-                  <span class="author-name">{{ postSeleccionado.autor.nombre }}</span>
-                  <span class="author-bio">{{ postSeleccionado.autor.bio }}</span>
-                </div>
+        
+        <article class="publicacion-detalle">
+          <div class="publicacion-detalle-header">
+            <div class="badges">
+              <span class="badge-categoria">{{ getNombreCategoria(publicacionSeleccionada.id_categoria) }}</span>
+              @if (publicacionSeleccionada.tipo) {
+                <span class="badge-tipo">{{ publicacionSeleccionada.tipo }}</span>
+              }
+            </div>
+            
+            <h1>{{ publicacionSeleccionada.titulo }}</h1>
+            
+            <div class="autor-meta">
+              <div class="avatar-large">
+                @if (publicacionSeleccionada.usuario?.foto_perfil) {
+                  <img [src]="publicacionSeleccionada.usuario!.foto_perfil" [alt]="publicacionSeleccionada.usuario!.nombre" />
+                } @else {
+                  <lucide-icon name="user"></lucide-icon>
+                }
               </div>
-              <span class="post-date">{{ formatearFecha(postSeleccionado.fecha) }}</span>
-            </div>
-          </div>
-          <img [src]="postSeleccionado.imagen" [alt]="postSeleccionado.titulo" class="post-full-image">
-          <div class="post-full-content">
-            <p>{{ postSeleccionado.contenido }}</p>
-          </div>
-          <div class="post-full-footer">
-            <div class="post-stats">
-              <button class="stat stat-button" (click)="darLike(postSeleccionado.id)">
-                <lucide-icon name="heart"></lucide-icon>
-                {{ postSeleccionado.likes }}
-              </button>
-              <span class="stat">
-                <lucide-icon name="message-circle"></lucide-icon>
-                {{ postSeleccionado.comentariosList.length }}
-              </span>
-              <span class="stat">
-                <lucide-icon name="eye"></lucide-icon>
-                {{ postSeleccionado.vistas }}
-              </span>
-            </div>
-            <div class="post-tags">
-              @for (tag of postSeleccionado.tags; track tag) {
-                <span class="tag">{{ tag }}</span>
+              <div class="autor-details">
+                <span class="autor-nombre">{{ publicacionSeleccionada.usuario?.nombre }} {{ publicacionSeleccionada.usuario?.apellido }}</span>
+                <span class="fecha">
+                  <lucide-icon name="calendar"></lucide-icon>
+                  {{ formatearFecha(publicacionSeleccionada.fecha_creacion) }}
+                </span>
+              </div>
+              
+              @if (puedeEditarPublicacion(publicacionSeleccionada)) {
+                <button class="btn-eliminar-publicacion" (click)="eliminarPublicacion(publicacionSeleccionada.id_publicacion)">
+                  <lucide-icon name="trash-2"></lucide-icon>
+                  Eliminar
+                </button>
               }
             </div>
           </div>
-
+          
+          <div class="publicacion-contenido">
+            <p>{{ publicacionSeleccionada.contenido }}</p>
+          </div>
+          
+          @if (publicacionSeleccionada.etiquetas && publicacionSeleccionada.etiquetas.length > 0) {
+            <div class="etiquetas-section">
+              <h4>
+                <lucide-icon name="tag"></lucide-icon>
+                Etiquetas
+              </h4>
+              <div class="etiquetas-list-detalle">
+                @for (etiqueta of publicacionSeleccionada.etiquetas; track etiqueta.id_etiqueta) {
+                  <span class="etiqueta-tag">{{ etiqueta.nombre }}</span>
+                }
+              </div>
+            </div>
+          }
+          
           <div class="comentarios-section">
-            <h3>Comentarios ({{ postSeleccionado.comentariosList.length }})</h3>
+            <h3>
+              <lucide-icon name="message-square"></lucide-icon>
+              Comentarios ({{ comentarios.length }})
+            </h3>
 
-            @if (postSeleccionado.comentariosList.length > 0) {
+            @if (comentarios.length > 0) {
               <div class="comentarios-lista">
-                @for (comentario of postSeleccionado.comentariosList; track comentario.id) {
+                @for (comentario of comentarios; track comentario.id_comentario) {
                   <div class="comentario">
                     <div class="comentario-header">
-                      <span class="comentario-avatar">{{ comentario.autor.avatar }}</span>
+                      <div class="avatar-comentario">
+                        @if (comentario.usuario?.foto_perfil) {
+                          <img [src]="comentario.usuario!.foto_perfil" [alt]="comentario.usuario!.nombre" />
+                        } @else {
+                          <lucide-icon name="user"></lucide-icon>
+                        }
+                      </div>
                       <div class="comentario-info">
-                        <span class="comentario-autor">{{ comentario.autor.nombre }}</span>
+                        <span class="comentario-autor">{{ comentario.usuario?.nombre }} {{ comentario.usuario?.apellido }}</span>
                         <span class="comentario-fecha">{{ formatearFecha(comentario.fecha) }}</span>
                       </div>
+                      
+                      @if (puedeEditarComentario(comentario)) {
+                        <div class="comentario-acciones">
+                          @if (comentarioEditando === comentario.id_comentario) {
+                            <button class="btn-icon btn-save" (click)="guardarComentario(comentario.id_comentario)">
+                              <lucide-icon name="check"></lucide-icon>
+                            </button>
+                            <button class="btn-icon btn-cancel-edit" (click)="cancelarEdicion()">
+                              <lucide-icon name="x"></lucide-icon>
+                            </button>
+                          } @else {
+                            <button class="btn-icon" (click)="editarComentario(comentario)">
+                              <lucide-icon name="edit"></lucide-icon>
+                            </button>
+                            <button class="btn-icon btn-delete" (click)="eliminarComentario(comentario.id_comentario, publicacionSeleccionada.id_publicacion)">
+                              <lucide-icon name="trash-2"></lucide-icon>
+                            </button>
+                          }
+                        </div>
+                      }
                     </div>
-                    <p class="comentario-contenido">{{ comentario.contenido }}</p>
+                    
+                    @if (comentarioEditando === comentario.id_comentario) {
+                      <textarea 
+                        [(ngModel)]="comentarioEditandoTexto" 
+                        class="comentario-edit-input"
+                        rows="3"
+                      ></textarea>
+                    } @else {
+                      <p class="comentario-contenido">{{ comentario.contenido }}</p>
+                    }
                   </div>
                 }
               </div>
             } @else {
-              <p class="sin-comentarios">Sé el primero en comentar</p>
+              <p class="sin-comentarios">
+                <lucide-icon name="inbox"></lucide-icon>
+                Sé el primero en comentar
+              </p>
             }
 
-            <div class="comentario-form">
-              <textarea [(ngModel)]="nuevoComentario" placeholder="Escribe un comentario..." class="comentario-input" rows="3"></textarea>
-              <button class="btn-comentar" (click)="agregarComentario(postSeleccionado.id, nuevoComentario)">
-                <lucide-icon name="send"></lucide-icon>
-                Comentar
-              </button>
-            </div>
+            @if (usuarioActual) {
+              <div class="comentario-form">
+                <div class="avatar-comentario-form">
+                  @if (usuarioActual.foto_perfil) {
+                    <img [src]="usuarioActual.foto_perfil" [alt]="usuarioActual.nombre" />
+                  } @else {
+                    <lucide-icon name="user"></lucide-icon>
+                  }
+                </div>
+                <div class="form-comentario-content">
+                  <textarea 
+                    [(ngModel)]="nuevoComentario" 
+                    placeholder="Escribe un comentario..." 
+                    class="comentario-input" 
+                    rows="3"
+                  ></textarea>
+                  <button class="btn-comentar" (click)="agregarComentario(publicacionSeleccionada.id_publicacion)">
+                    <lucide-icon name="send"></lucide-icon>
+                    Comentar
+                  </button>
+                </div>
+              </div>
+            } @else {
+              <p class="login-message">
+                <lucide-icon name="info"></lucide-icon>
+                Inicia sesión para comentar
+              </p>
+            }
           </div>
         </article>
       </div>

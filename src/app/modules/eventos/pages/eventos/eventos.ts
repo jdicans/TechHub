@@ -82,8 +82,10 @@ export class Eventos implements OnInit {
 
   async cargarCategorias(): Promise<void> {
     try {
-      this.categoriasDisponibles = await this.categoriasService.obtenerCategorias();
-      console.log('📂 Categorías disponibles:', this.categoriasDisponibles);
+      const todasCategorias = await this.categoriasService.obtenerCategorias();
+      // Excluir la categoría "Emprendimiento" (id_categoria = 9)
+      this.categoriasDisponibles = todasCategorias.filter(cat => cat.id_categoria !== 9);
+      console.log('📂 Categorías disponibles (sin emprendimiento):', this.categoriasDisponibles);
     } catch (error: any) {
       console.error('Error al cargar categorías:', error);
       // No mostrar error si el endpoint no existe
